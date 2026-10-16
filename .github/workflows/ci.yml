@@ -1,0 +1,61 @@
+# Quality gates on every pull request: `cargo xtask ci` (fmt, clippy, tests, parity, layers,
+# assets, wasm) on Linux x64, and the workspace tests on macOS and Windows (gap 9 in
+# docs/gaps.md). The other steps don't depend on the platform, so they run once.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, ci/gap9-tests]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  # keep target/ within a hosted runner's disk: no incremental state, no debug info
+  CARGO_INCREMENTAL: "0"
+  CARGO_PROFILE_DEV_DEBUG: "0"
+  CARGO_PROFILE_TEST_DEBUG: "0"
+
+jobs:
+  linux:
+    name: xtask ci (Linux x64)
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - name: Free disk space
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL && df -h /
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo xtask ci
+      - name: Summary
+        if: always()
+        shell: bash
+        run: |
+          [ -f target/ci/summary.md ] && cat target/ci/summary.md >> "$GITHUB_STEP_SUMMARY"
+          df -h /
+
+  test:
+    name: tests (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test --workspace --no-fail-fast
