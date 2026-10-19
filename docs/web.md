@@ -158,11 +158,12 @@ are the same in every version, so serve them with `Cache-Control: no-cache` (not
   `{version}` once it listens (`lightcraft:failed` `{error}` if it couldn't start); the page sends
   `lightcraft:open` `{name, bytes}` to add a photo (as one dropped on the window; `name` gives the
   format) and `lightcraft:cmd` `{id, params}` to run a command, answered by `lightcraft:response`
-  `{ok, value}`. Everything that would be downloaded (exports, preset and keyword files, the
-  library backup) reaches the page as `lightcraft:save` `{name, bytes}` (a transferred
-  `ArrayBuffer`) instead, and `lightcraft:dirty` `{dirty}` says, whenever it changes, whether
-  closing now would lose something (a write to browser storage still queued or running, or
-  changes storage refused), so the page can ask before closing a window with edits. Only the
+  `{ok, value}`. Everything that would be downloaded (exports and the library backup; the
+  preset, keyword and curve file dialogs have no web implementation yet) reaches the page as
+  `lightcraft:save` `{name, bytes}` (a transferred `ArrayBuffer`) instead, and `lightcraft:dirty`
+  `{dirty}` says, whenever it changes, whether closing now would lose something (a write to
+  browser storage still queued or running, or changes storage refused), so the page can ask
+  before closing a window with edits. Only the
   parent window on the page's own origin is heard or answered. The library still lives in the
   iframe's browser storage.
 

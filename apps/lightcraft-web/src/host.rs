@@ -8,8 +8,9 @@
 //!   `Uint8Array`. The photo is added to the library, as one dropped on the window is; `name`
 //!   gives the format (its extension), `photo.jpg` when missing.
 //! - `lightcraft:save` (to the parent): `{ name, bytes }` (a transferred `ArrayBuffer`) for every
-//!   file LightCraft would otherwise download: exports, preset and keyword files, the library
-//!   backup. The parent stores it and reports failures itself.
+//!   file LightCraft would otherwise download: exports and the library backup (the preset, keyword
+//!   and curve file dialogs have no web implementation yet). The parent stores it and reports
+//!   failures itself.
 //! - `lightcraft:dirty` (to the parent): `{ dirty }` whenever unsaved changes appear or go away.
 //!   On the web every change is written to browser storage a moment after it is made, so `dirty`
 //!   means "closing the page right now would lose something": a write still queued or running,

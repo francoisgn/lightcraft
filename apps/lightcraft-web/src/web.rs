@@ -199,16 +199,10 @@ fn services(
                 })
                 .collect();
             let files = backup_files.clone();
+            // awaited by `backup`: "backed up" is said only once the page has the file
             let deliver: safety::Deliver = match backup_bridge.clone() {
-                Some(bridge) => Box::new(move |name: String, blob: web_sys::Blob| {
-                    wasm_bindgen_futures::spawn_local(async move {
-                        if let Err(e) = bridge.save_blob(name, blob).await {
-                            notice(format!("The backup could not be handed to the page: {e}"));
-                        }
-                    });
-                    Ok(())
-                }),
-                None => Box::new(|name: String, blob: web_sys::Blob| safety::download_blob(&name, &blob)),
+                Some(bridge) => Box::new(move |name: String, blob: web_sys::Blob| Box::pin(async move { bridge.save_blob(name, blob).await })),
+                None => Box::new(|name: String, blob: web_sys::Blob| Box::pin(async move { safety::download_blob(&name, &blob) })),
             };
             notice(if backup_bridge.is_some() {
                 "Backing up the library… (handed to the page when it's ready)"
@@ -301,6 +295,8 @@ async fn flush(files: Files, backend: Backend, dir: String, flushing: Rc<Cell<bo
         }
     }
     flushing.set(false);
+    // the next frame reports the library as saved (the page framing LightCraft hears `dirty: false`)
+    request_repaint();
 }
 
 /// Everything loaded before the UI starts.
@@ -767,6 +763,9 @@ pub fn start(chinese_font: Vec<u8>) {
                 "LightCraft is already open in another tab or window of this browser.\n\n\
                  Switch to that tab, or close it and reload this page. (Two tabs would overwrite each other's changes.)",
             );
+            if let Some(b) = &bridge {
+                b.post(&Outgoing::Failed("LightCraft is already open in another tab or window of this browser".into()));
+            }
             return;
         }
         let Some(canvas) = window()
@@ -775,6 +774,9 @@ pub fn start(chinese_font: Vec<u8>) {
             .and_then(|e| e.dyn_into::<web_sys::HtmlCanvasElement>().ok())
         else {
             log::error!("missing <canvas id=\"lightcraft_canvas\">");
+            if let Some(b) = &bridge {
+                b.post(&Outgoing::Failed("the page has no <canvas id=\"lightcraft_canvas\">".into()));
+            }
             return;
         };
         let boot = boot(opts, bridge.clone()).await;
