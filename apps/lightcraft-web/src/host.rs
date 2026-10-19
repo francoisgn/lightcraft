@@ -168,7 +168,12 @@ mod bridge {
             if js_sys::Object::is(&parent, &window) {
                 return None;
             }
-            let origin = window.location().origin().ok().filter(|o| origin_is_usable(o))?;
+            // the document's own origin (`window.origin`), not the URL's: a sandboxed iframe keeps
+            // its URL but runs with the opaque origin "null"
+            let origin = window.origin();
+            if !origin_is_usable(&origin) {
+                return None;
+            }
             Some(Self { window, parent, origin, incoming: Rc::default(), dirty: Rc::default() })
         }
 

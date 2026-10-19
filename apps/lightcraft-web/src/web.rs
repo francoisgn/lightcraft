@@ -754,7 +754,7 @@ pub fn start(chinese_font: Vec<u8>) {
     // be downloaded and hears about unsaved changes (see `host`)
     let bridge = opts.host.then(crate::host::Bridge::new).flatten();
     if opts.host && bridge.is_none() {
-        log::warn!("lightcraft: ?host=parent, but this page is not framed; no page to speak to");
+        log::warn!("lightcraft: ?host=parent, but this page is not framed or has an opaque origin; no page to speak to");
     }
     wasm_bindgen_futures::spawn_local(async move {
         // one tab per library: two would each keep their own copy and overwrite each other's saves
