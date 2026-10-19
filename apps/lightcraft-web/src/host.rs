@@ -18,9 +18,13 @@
 //! - `lightcraft:cmd` (from the parent): `{ id, params }`, params a JSON string (`{}` when
 //!   missing). Runs the command by id, like `lightcraft.command(..)` from the page itself, and
 //!   answers with `lightcraft:response` `{ ok, value }` (the JSON result, or the error text).
+//!   Responses carry no request id (none of the sibling bridges' do): they come back in the order
+//!   the commands were sent, one per `cmd` that had an id; a `cmd` without one gets no response.
 //!
-//! Only the parent window on the page's own origin is heard or answered. There is no
-//! `docClosed`: LightCraft has a library, not documents that close.
+//! Only the parent window on the page's own origin is heard or answered. A page whose origin is
+//! opaque (`"null"`: a sandboxed iframe, a `data:` page) gets no bridge at all, since every other
+//! opaque-origin window would then pass as the parent. There is no `docClosed`: LightCraft has a
+//! library, not documents that close.
 //!
 //! The message layer (what a message means, what is sent back) is plain Rust, tested natively;
 //! [`Bridge`] (wasm32 only) moves it over `postMessage`.
@@ -119,6 +123,13 @@ impl DirtyReport {
     }
 }
 
+/// Whether a page origin can tell the parent apart from any other window: an opaque origin
+/// (`"null"`, as a sandboxed iframe or a `data:` page has) cannot, so such a page gets no bridge.
+pub fn origin_is_usable(origin: &str) -> bool {
+    let o = origin.trim();
+    !o.is_empty() && o != "null"
+}
+
 /// The name a saved file is handed over under: the file name of the path the export chose.
 pub fn save_name(path: &str) -> String {
     std::path::Path::new(path).file_name().map(|n| n.to_string_lossy().to_string()).filter(|n| !n.is_empty()).unwrap_or_else(|| path.to_string())
@@ -136,7 +147,7 @@ mod bridge {
     use wasm_bindgen::JsValue;
     use wasm_bindgen::closure::Closure;
 
-    use super::{DirtyReport, Field, Incoming, Outgoing, Raw, save_name};
+    use super::{DirtyReport, Field, Incoming, Outgoing, Raw, origin_is_usable, save_name};
 
     /// The parent page's end of the bridge (cheap to clone; one per page).
     #[derive(Clone)]
@@ -157,7 +168,7 @@ mod bridge {
             if js_sys::Object::is(&parent, &window) {
                 return None;
             }
-            let origin = window.location().origin().ok()?;
+            let origin = window.location().origin().ok().filter(|o| origin_is_usable(o))?;
             Some(Self { window, parent, origin, incoming: Rc::default(), dirty: Rc::default() })
         }
 
@@ -330,6 +341,17 @@ mod tests {
         d.sent(true);
         assert_eq!(d.change(true), None);
         assert_eq!(d.change(false), Some(Outgoing::Dirty(false)));
+    }
+
+    /// A sandboxed iframe or a `data:` page has the opaque origin `"null"`, which any other such
+    /// window shares: no bridge there, so the origin check keeps meaning something.
+    #[test]
+    fn an_opaque_origin_gets_no_bridge() {
+        assert!(origin_is_usable("https://photos.example"));
+        assert!(origin_is_usable("http://localhost:8080"));
+        assert!(!origin_is_usable("null"));
+        assert!(!origin_is_usable(" null "));
+        assert!(!origin_is_usable(""));
     }
 
     #[test]
