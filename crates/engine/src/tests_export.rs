@@ -480,6 +480,48 @@ fn explicit_export_paths_preserve_windows_and_relative_basename_groups() {
     let _ = std::fs::remove_dir_all(dir);
 }
 
+/// Review of #1405: an explicit path naming a folder is refused, not renamed to `out-2` beside it.
+#[test]
+fn explicit_export_path_to_a_folder_is_refused_under_every_policy() {
+    use crate::export::{Conflict, Destination};
+    let (mut s, id, dir, _, _) = library_with_jpeg("export-exact-folder");
+    let out = dir.join("out");
+    std::fs::create_dir_all(&out).unwrap();
+    let spellings = [out.to_string_lossy().into_owned(), format!("{}/", out.to_string_lossy()), format!("{}/", dir.join("new").to_string_lossy())];
+    for exact in spellings {
+        for conflict in [Conflict::Unique, Conflict::Skip, Conflict::Overwrite] {
+            let to = Destination { dir: String::new(), exact: Some(exact.clone()) };
+            let err = disk_batch(&mut s, id, &ExportOptions { conflict, ..Default::default() }, &to).unwrap_err();
+            assert!(err.contains("is a folder"), "{exact} {conflict:?}: {err}");
+        }
+    }
+    assert_eq!(std::fs::read_dir(&out).unwrap().count(), 0, "nothing written inside it");
+    assert!(!dir.join("out-2").exists() && !dir.join("new").exists());
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+/// Review of #1405: only the requested file itself is refused as an original. A sidecar that would
+/// land on an original's sidecar is a collision, so Unique renames past it and Skip skips.
+#[test]
+fn explicit_export_path_whose_sidecar_is_an_originals_follows_the_policy() {
+    use crate::export::{Conflict, Destination};
+    let (mut s, id, dir, src, original) = library_with_jpeg("export-exact-original-sidecar");
+    let sidecar = dir.join("IMG_1.xmp");
+    std::fs::write(&sidecar, b"the original's sidecar").unwrap();
+    let to = Destination { dir: String::new(), exact: Some(dir.join("IMG_1.jpeg").to_string_lossy().into()) };
+    let opts = ExportOptions { format: ExportFormat::Original, ..Default::default() };
+    let skipped = disk_batch(&mut s, id, &ExportOptions { conflict: Conflict::Skip, ..opts.clone() }, &to).unwrap();
+    assert!(skipped[0]["skipped"].is_string(), "{skipped:?}");
+    let unique = disk_batch(&mut s, id, &opts, &to).unwrap();
+    assert_eq!(std::path::Path::new(unique[0]["path"].as_str().unwrap()), dir.join("IMG_1-2.jpeg"));
+    assert_eq!(std::path::Path::new(unique[0]["sidecars"][0].as_str().unwrap()), dir.join("IMG_1-2.xmp"));
+    let err = disk_batch(&mut s, id, &ExportOptions { conflict: Conflict::Overwrite, ..opts }, &to).unwrap_err();
+    assert!(err.contains("never writes over an original"), "{err}");
+    assert_eq!(std::fs::read(&sidecar).unwrap(), b"the original's sidecar");
+    assert_eq!(std::fs::read(&src).unwrap(), original);
+    let _ = std::fs::remove_dir_all(dir);
+}
+
 /// Issue #93: the XMP sidecar of an "Original" export ignored the conflict policy.
 #[test]
 fn export_sidecars_follow_the_conflict_policy() {
