@@ -1,5 +1,16 @@
 # What's new in LightCraft
 
+## 2026-10-21
+
+### A library with a damaged save opens quickly
+- A library whose journal holds a long line left by a failed save no longer stalls while it opens: recovering the
+  changes after it now takes time in proportion to the line's length, not its square (issue #2124).
+- If that partial entry sits just before a complete change from a newer LightCraft, this build refuses to open the
+  library and asks you to update, rather than dropping that change as an incomplete save. The catalog snapshot and
+  journal are left unchanged, including when the final entry has no newline.
+- A change retried after a failed save is no longer lost when an earlier line of the journal is damaged: the journal is
+  kept as a `.damaged` copy, as for other damage.
+
 ## 2026-10-19
 
 ### Hidden Local locations come back one at a time
@@ -23,11 +34,6 @@
 - A crop ratio no longer flips to the photo's orientation (issue #2253): after X turns the crop portrait, picking
   another ratio (4 × 5, 2 × 3…) keeps it portrait, as in Lightroom, and a Custom ratio taller than wide gives a
   portrait crop.
-
-### Newer library changes are kept after a failed save
-- If a failed save left a partial journal entry immediately before a complete change from a newer LightCraft,
-  this build now refuses to open the library and asks you to update, rather than dropping that change as an
-  incomplete save. The catalog snapshot and journal are left unchanged, including when the final entry has no newline.
 
 ## 2026-10-15
 

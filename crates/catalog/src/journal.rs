@@ -263,14 +263,19 @@ fn newer(what: String) -> CatalogError {
     CatalogError::Newer(format!("{what}; this version reads catalog format v{VERSION} and older"))
 }
 
+/// The error for a log record holding an op this version doesn't know.
+fn newer_record(seq: u64) -> CatalogError {
+    newer(format!("{LOG} record {seq} holds a change this version doesn't know"))
+}
+
 /// A line that doesn't decode but ends with a whole record: a fragment of a failed append followed
 /// by the record that retried it (the retry re-encodes the same ops with the same `seq`s). Returns
 /// the fragment's length and decoded line, if its sequence continues the log (`seq <= last + 1`).
 /// The record's CRC must match; an unknown op stays `Line::Newer`, never torn data.
 fn resync(line: &[u8], last: u64) -> Option<(usize, Line)> {
     const START: &[u8] = b"{\"seq\":";
-    let end = line.iter().rposition(|b| *b != b'\r')? + 1;
-    let line = &line[..end];
+    let end = line.iter().rposition(|b| *b != b'\r')?.checked_add(1)?;
+    let line = line.get(..end)?;
     if line.last() != Some(&b'}') {
         return None;
     }
@@ -279,18 +284,19 @@ fn resync(line: &[u8], last: u64) -> Option<(usize, Line)> {
     let mut depth = 0usize;
     let mut quoted = false;
     for (at, byte) in line.iter().enumerate().rev() {
-        if *byte == b'"' && line[..at].iter().rev().take_while(|b| **b == b'\\').count().is_multiple_of(2) {
+        if *byte == b'"' && line.get(..at)?.iter().rev().take_while(|b| **b == b'\\').count().is_multiple_of(2) {
             quoted = !quoted;
         } else if !quoted {
             match byte {
-                b'}' => depth += 1,
+                b'}' => depth = depth.saturating_add(1),
                 b'{' => {
                     depth = depth.checked_sub(1)?;
                     if depth == 0 {
-                        if at == 0 || !line[at..].starts_with(START) {
+                        let record = line.get(at..)?;
+                        if at == 0 || !record.starts_with(START) {
                             return None;
                         }
-                        let rec = decode_line(std::str::from_utf8(&line[at..]).ok()?);
+                        let rec = decode_line(std::str::from_utf8(record).ok()?);
                         let seq = match &rec {
                             Line::Record(seq, _) | Line::Newer(seq) => *seq,
                             Line::Bad => return None,
@@ -412,20 +418,17 @@ impl Journal {
             if matches!(record, Line::Bad)
                 && let Some((at, r)) = resync(&log[pos..line_end], j.seq)
             {
-                // Refuse an unknown recovered op before even logging a repair.
-                if let Line::Newer(seq) = r {
-                    return Err(newer(format!("{LOG} record {seq} holds a change this version doesn't know")));
-                }
                 // the torn start of a failed append, then the retried records (older builds
-                // appended them right after the fragment)
-                log::warn!("catalog log: skipped a partial record ({at} bytes) left by a failed write");
-                report.torn_fragments += 1;
+                // appended them right after the fragment); an unknown recovered op is refused
+                // below, before any repair is logged
+                if matches!(r, Line::Record(..)) {
+                    log::warn!("catalog log: skipped a partial record ({at} bytes) left by a failed write");
+                    report.torn_fragments += 1;
+                }
                 record = r;
             }
             match record {
-                Line::Newer(seq) => {
-                    return Err(newer(format!("{LOG} record {seq} holds a change this version doesn't know")));
-                }
+                Line::Newer(seq) => return Err(newer_record(seq)),
                 Line::Record(seq, op) if seq <= j.seq => {
                     // already in the snapshot
                     let _ = op;
@@ -443,11 +446,17 @@ impl Journal {
                     // bad record (or a gap): torn tail if nothing good follows, else damage
                     let mut rest_has_good = false;
                     for l in log[next..].split(|b| *b == b'\n') {
-                        match std::str::from_utf8(l).map(|l| decode_line(l.trim_end_matches('\r'))) {
-                            Ok(Line::Record(..)) => rest_has_good = true,
+                        let line = std::str::from_utf8(l).map_or(Line::Bad, |l| decode_line(l.trim_end_matches('\r')));
+                        // a later line can also be a failed append's fragment and its retried record
+                        let line = match line {
+                            Line::Bad => resync(l, u64::MAX).map_or(Line::Bad, |(_, r)| r),
+                            line => line,
+                        };
+                        match line {
+                            Line::Record(..) => rest_has_good = true,
                             // refused before anything is modified
-                            Ok(Line::Newer(seq)) => return Err(newer(format!("{LOG} record {seq} holds a change this version doesn't know"))),
-                            Ok(Line::Bad) | Err(_) => {}
+                            Line::Newer(seq) => return Err(newer_record(seq)),
+                            Line::Bad => {}
                         }
                     }
                     if rest_has_good {

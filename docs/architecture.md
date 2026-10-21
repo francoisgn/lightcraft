@@ -1,6 +1,6 @@
 # Architecture
 
-> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-18 · **Change:** patch (journal recovery integration, #2153) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6
+> **Last reviewed:** 2026-10-10 · **Last updated:** 2026-10-21 · **Change:** patch (linear journal suffix recovery, #2124 / #2153) · **Target:** Adobe Lightroom Classic 15.5 / Lightroom 9.6
 
 How LightCraft is built today. The longer design document (`plan/architecture.md`) is local-only
 (`plan/` is gitignored); this page is the committed, current summary. Sizes are Rust lines counted
@@ -37,8 +37,8 @@ L5 depends on egui, eframe, winit or rfd, and that each crate only uses lower la
   A CRC-valid stale-or-next suffix whose operation this build does not understand refuses the open
   as a newer-version library before logging a fragment repair or changing any catalog files;
   its snapshot and complete log, including the fragment, are left untouched.
-  A bad CRC or sequence gap still stops replay; if good records follow, the original log is
-  preserved as damaged rather than replaying past the gap. Out-of-range snapshot counters are
+  A bad CRC or sequence gap still stops replay; if good records follow (a later fragment and its
+  retried record count as one), the original log is preserved as damaged rather than replaying past the gap. Out-of-range snapshot counters are
   refused as corrupt, and counter increments are checked for overflow. The catalog format is unchanged.
 - **Edits** are a `develop::Settings` value (every slider is a control spec with id, range and
   default), normalized to image coordinates so previews and exports match. Process versions
@@ -88,7 +88,6 @@ the `lightcraft-gpu` tests once per backend with a hardware adapter (`LIGHTCRAFT
 
 | Date | Change | Summary |
 |---|---|---|
-| 2026-10-18 | patch | Integrated linear suffix recovery with upstream counter guards (#2153); clarified stale fragments, line endings and damage handling |
-| 2026-10-17 | patch | Failed-append suffix recovery is linear in the damaged line length (#2124); catalog format unchanged |
+| 2026-10-21 | patch | Failed-append suffix recovery is linear in the damaged line length (#2124, #2153): stale fragments, line endings, unknown ops and damage handling; catalog format unchanged |
 | 2026-10-11 | minor | Quality gates: the CI machine probe, visible skips (`testkit`) and `target/ci/report.json` |
 | 2026-10-10 | major | Created from the code (crate sizes, layers, data model, rendering, control, gates) |

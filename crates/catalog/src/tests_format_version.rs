@@ -213,6 +213,24 @@ fn fragmented_unknown_op_is_refused_untouched() {
     }
 }
 
+/// A fragment and an unknown retried op on a line after damage is refused too, not truncated
+/// as a torn tail or kept as damage.
+#[test]
+fn fragmented_unknown_op_after_damage_is_refused_untouched() {
+    let (base, log, _) = legacy_parts();
+    let body = r#"{"op":"fromTheFuture"}"#;
+    let record = format!("{{\"seq\":4,\"crc\":{},\"op\":{body}}}", crc32fast::hash(body.as_bytes()));
+    for ending in ["\n", "\r\n", ""] {
+        let m = MemStore::new();
+        m.set(
+            SNAPSHOT,
+            format!("{{\"format\":\"lightcraft-catalog\",\"version\":{VERSION},\"seq\":2,\"catalog\":{}}}\n", base.to_snapshot()).into_bytes(),
+        );
+        m.set(LOG, format!("{log}<garbage>\nfragment{record}{ending}").into_bytes());
+        assert_refused_untouched(&m);
+    }
+}
+
 /// The new refusal applies only to CRC-valid, stale-or-next suffixes; malformed records, bad
 /// CRCs and a sequence gap retain the normal torn-tail / preserved-damage recovery rules.
 #[test]

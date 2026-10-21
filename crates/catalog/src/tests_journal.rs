@@ -342,6 +342,24 @@ fn fragmented_record_with_bad_crc_or_sequence_is_damage() {
 }
 
 #[test]
+fn a_retried_record_after_damage_keeps_the_log_as_damaged() {
+    let kept = Album::new(AlbumId(1), "Kept");
+    let behind = Album::new(AlbumId(2), "Behind the damage");
+    let first = encode_record(1, &Op::AddAlbum { album: kept.clone() });
+    let retried = encode_record(2, &Op::AddAlbum { album: behind });
+    for ending in ["\n", "\r\n", ""] {
+        let log = format!("{first}\n<garbage>\nfragment{retried}{ending}").into_bytes();
+        let m = MemStore::new();
+        m.set(LOG, log.clone());
+        let (_, loaded, report) = open(&m);
+        assert_eq!(loaded.album(kept.id), Some(&kept));
+        assert_eq!(report.torn_bytes, 0, "not truncated as a torn tail");
+        let damaged = report.damaged.expect("the CRC-valid retried record after the damage is preserved");
+        assert_eq!(m.get(&damaged).unwrap(), log);
+    }
+}
+
+#[test]
 fn push_history_is_bounded_and_invertible() {
     let mut c = Catalog::new();
     let id = c.alloc_photo_id();
