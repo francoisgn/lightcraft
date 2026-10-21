@@ -24,6 +24,11 @@
   another ratio (4 × 5, 2 × 3…) keeps it portrait, as in Lightroom, and a Custom ratio taller than wide gives a
   portrait crop.
 
+### Newer library changes are kept after a failed save
+- If a failed save left a partial journal entry immediately before a complete change from a newer LightCraft,
+  this build now refuses to open the library and asks you to update, rather than dropping that change as an
+  incomplete save. The catalog snapshot and journal are left unchanged, including when the final entry has no newline.
+
 ## 2026-10-15
 
 ### Constrain Crop tightens the crop you see

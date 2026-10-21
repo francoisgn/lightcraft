@@ -265,14 +265,44 @@ fn newer(what: String) -> CatalogError {
 
 /// A line that doesn't decode but ends with a whole record: a fragment of a failed append followed
 /// by the record that retried it (the retry re-encodes the same ops with the same `seq`s). Returns
-/// the fragment's length and the record, if that record continues the log (`seq <= last + 1`).
-/// The record's CRC must match, so damage is never mistaken for it.
-fn resync(line: &[u8], last: u64) -> Option<(usize, (u64, Op))> {
+/// the fragment's length and decoded line, if its sequence continues the log (`seq <= last + 1`).
+/// The record's CRC must match; an unknown op stays `Line::Newer`, never torn data.
+fn resync(line: &[u8], last: u64) -> Option<(usize, Line)> {
     const START: &[u8] = b"{\"seq\":";
-    (1..line.len().saturating_sub(START.len() - 1)).filter(|&i| line[i..].starts_with(START)).find_map(|i| {
-        let rec = std::str::from_utf8(&line[i..]).ok().map(|l| l.trim_end_matches('\r')).and_then(decode_record)?;
-        (rec.0 <= last.saturating_add(1)).then_some((i, rec))
-    })
+    let end = line.iter().rposition(|b| *b != b'\r')? + 1;
+    let line = &line[..end];
+    if line.last() != Some(&b'}') {
+        return None;
+    }
+    // Find the final object's opening brace in one backwards pass. A nested smart-album
+    // rule value can also start with START, so the last marker alone is not enough.
+    let mut depth = 0usize;
+    let mut quoted = false;
+    for (at, byte) in line.iter().enumerate().rev() {
+        if *byte == b'"' && line[..at].iter().rev().take_while(|b| **b == b'\\').count().is_multiple_of(2) {
+            quoted = !quoted;
+        } else if !quoted {
+            match byte {
+                b'}' => depth += 1,
+                b'{' => {
+                    depth = depth.checked_sub(1)?;
+                    if depth == 0 {
+                        if at == 0 || !line[at..].starts_with(START) {
+                            return None;
+                        }
+                        let rec = decode_line(std::str::from_utf8(&line[at..]).ok()?);
+                        let seq = match &rec {
+                            Line::Record(seq, _) | Line::Newer(seq) => *seq,
+                            Line::Bad => return None,
+                        };
+                        return (seq <= last.saturating_add(1)).then_some((at, rec));
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+    None
 }
 
 /// Write `catalog.snap` for the state after op `seq`, streaming the JSON into the store (no
@@ -378,28 +408,30 @@ impl Journal {
                 good_end = next;
                 continue;
             }
-            let mut record = line.and_then(decode_record);
-            if record.is_none()
+            let mut record = line.map_or(Line::Bad, decode_line);
+            if matches!(record, Line::Bad)
                 && let Some((at, r)) = resync(&log[pos..line_end], j.seq)
             {
+                // Refuse an unknown recovered op before even logging a repair.
+                if let Line::Newer(seq) = r {
+                    return Err(newer(format!("{LOG} record {seq} holds a change this version doesn't know")));
+                }
                 // the torn start of a failed append, then the retried records (older builds
                 // appended them right after the fragment)
                 log::warn!("catalog log: skipped a partial record ({at} bytes) left by a failed write");
                 report.torn_fragments += 1;
-                record = Some(r);
-            }
-            if record.is_none()
-                && let Some(Line::Newer(seq)) = line.map(decode_line)
-            {
-                return Err(newer(format!("{LOG} record {seq} holds a change this version doesn't know")));
+                record = r;
             }
             match record {
-                Some((seq, op)) if seq <= j.seq => {
+                Line::Newer(seq) => {
+                    return Err(newer(format!("{LOG} record {seq} holds a change this version doesn't know")));
+                }
+                Line::Record(seq, op) if seq <= j.seq => {
                     // already in the snapshot
                     let _ = op;
                     report.stale += 1;
                 }
-                Some((seq, op)) if j.seq.checked_add(1) == Some(seq) => {
+                Line::Record(seq, op) if j.seq.checked_add(1) == Some(seq) => {
                     if catalog.apply(op).is_err() {
                         report.failed += 1;
                     } else {
