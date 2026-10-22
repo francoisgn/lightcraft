@@ -278,7 +278,10 @@ fn repeated_record_markers_do_not_hide_a_retried_record() {
     drop(journal);
     let fragment = b"{\"seq\":".repeat(300_000);
     m.set(LOG, fragment.clone());
+    // Quadratic resync over 300,000 markers takes minutes; linear recovery takes milliseconds.
+    let start = std::time::Instant::now();
     let (_, loaded, report) = open(&m);
+    assert!(start.elapsed() < std::time::Duration::from_secs(5), "took {:?}", start.elapsed());
     assert_eq!(loaded.to_snapshot(), catalog.to_snapshot());
     assert_eq!(report.torn_bytes as usize, fragment.len());
     assert!(m.get(LOG).unwrap().is_empty());
@@ -288,7 +291,9 @@ fn repeated_record_markers_do_not_hide_a_retried_record() {
     log.extend_from_slice(encode_record(1, &Op::AddAlbum { album: album.clone() }).as_bytes());
     log.push(b'\n');
     m.set(LOG, log);
+    let start = std::time::Instant::now();
     let (_, loaded, report) = open(&m);
+    assert!(start.elapsed() < std::time::Duration::from_secs(5), "took {:?}", start.elapsed());
     assert_eq!(loaded.album(album.id), Some(&album));
     assert_eq!((report.replayed, report.torn_fragments, report.torn_bytes), (1, 1, 0));
     assert!(report.damaged.is_none());
