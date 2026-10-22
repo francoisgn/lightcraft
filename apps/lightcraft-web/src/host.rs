@@ -3,7 +3,8 @@
 //! DeckCraft speak, with `lightcraft:` message types:
 //!
 //! - `lightcraft:ready` (to the parent): `{ version }`, the app is listening.
-//! - `lightcraft:failed` (to the parent): `{ error }`, the app couldn't start.
+//! - `lightcraft:failed` (to the parent): `{ error }`, the app couldn't start, or it refused a
+//!   `lightcraft:open` (a file larger than a library backup can hold, [`crate::backup::MAX_BYTES`]).
 //! - `lightcraft:open` (from the parent): `{ name, bytes }`, bytes an `ArrayBuffer` or
 //!   `Uint8Array`. The photo is added to the library, as one dropped on the window is; `name`
 //!   gives the format (its extension), `photo.jpg` when missing.
@@ -16,8 +17,9 @@
 //!   means "closing the page right now would lose something": a write still queued or running,
 //!   or changes that storage refused (quota).
 //! - `lightcraft:cmd` (from the parent): `{ id, params }`, params a JSON string (`{}` when
-//!   missing). Runs the command by id, like `lightcraft.command(..)` from the page itself, and
-//!   answers with `lightcraft:response` `{ ok, value }` (the JSON result, or the error text).
+//!   missing, empty or `null`; anything but a JSON object is refused unrun, see [`cmd_params`]).
+//!   Runs the command by id, like `lightcraft.command(..)` from the page itself, and answers with
+//!   `lightcraft:response` `{ ok, value }` (the JSON result, or the error text).
 //!   Responses carry no request id (none of the sibling bridges' do): they come back in the order
 //!   the commands were sent, one per `cmd` that had an id; a `cmd` without one gets no response.
 //!
@@ -36,6 +38,8 @@ pub enum Incoming {
     Open { name: String, bytes: Vec<u8> },
     /// `lightcraft:cmd`: run this command (params as JSON text).
     Cmd { id: String, params: String },
+    /// `lightcraft:open` with a file too large to keep: tell the parent why (`lightcraft:failed`).
+    Refused(String),
 }
 
 /// The fields of a message from the parent, as read off the event (each may be missing).
@@ -46,6 +50,31 @@ pub struct Raw {
     pub bytes: Option<Vec<u8>>,
     pub id: Option<String>,
     pub params: Option<String>,
+    /// The size of `bytes` when it was too large to copy (`bytes` is then `None`).
+    pub oversize: Option<u64>,
+}
+
+/// Why a photo of `len` bytes sent with `lightcraft:open` is refused, or `None` when it fits: one
+/// larger than a library backup can hold ([`crate::backup::MAX_BYTES`]) is never copied in.
+pub fn open_size_error(len: u64) -> Option<String> {
+    let max = crate::backup::MAX_BYTES;
+    (len > max).then(|| format!("the file is too large to open ({} MB; the limit is {} MB)", len >> 20, max >> 20))
+}
+
+/// The parameters of a `lightcraft:cmd`: a JSON object, or `{}` when the text is empty or `null`.
+/// Anything else is an error, never `{}`: a command run without its params acts on the selection
+/// or with defaults, so a typo such as `{ids: [3]}` must not delete or reset the selected photos.
+pub fn cmd_params(text: &str) -> Result<serde_json::Value, String> {
+    let text = text.trim();
+    if text.is_empty() {
+        return Ok(serde_json::Value::Object(Default::default()));
+    }
+    match serde_json::from_str::<serde_json::Value>(text) {
+        Ok(serde_json::Value::Null) => Ok(serde_json::Value::Object(Default::default())),
+        Ok(v @ serde_json::Value::Object(_)) => Ok(v),
+        Ok(_) => Err("params must be a JSON object, e.g. {\"ids\": [3]}; nothing was run".into()),
+        Err(e) => Err(format!("params are not valid JSON ({e}); nothing was run")),
+    }
 }
 
 /// The name a photo sent without one is stored under (its extension picks the decoder).
@@ -57,6 +86,9 @@ impl Incoming {
     pub fn parse(raw: Raw) -> Option<Incoming> {
         match raw.kind.as_deref() {
             Some("lightcraft:open") => {
+                if let Some(error) = raw.oversize.and_then(open_size_error) {
+                    return Some(Incoming::Refused(error));
+                }
                 let name = raw.name.filter(|n| !n.trim().is_empty()).unwrap_or_else(|| DEFAULT_OPEN_NAME.to_string());
                 Some(Incoming::Open { name, bytes: raw.bytes? })
             }
@@ -147,7 +179,7 @@ mod bridge {
     use wasm_bindgen::JsValue;
     use wasm_bindgen::closure::Closure;
 
-    use super::{DirtyReport, Field, Incoming, Outgoing, Raw, origin_is_usable, save_name};
+    use super::{DirtyReport, Field, Incoming, Outgoing, Raw, open_size_error, origin_is_usable, save_name};
 
     /// The parent page's end of the bridge (cheap to clone; one per page).
     #[derive(Clone)]
@@ -187,12 +219,14 @@ mod bridge {
                     return;
                 }
                 let data = event.data();
+                let bytes = bytes(&data);
                 let raw = Raw {
                     kind: string(&data, "type"),
                     name: string(&data, "name"),
-                    bytes: bytes(&data),
+                    bytes: bytes.as_ref().and_then(|b| b.as_ref().ok().cloned()),
                     id: string(&data, "id"),
                     params: string(&data, "params"),
+                    oversize: bytes.and_then(Result::err),
                 };
                 if let Some(m) = Incoming::parse(raw) {
                     incoming.borrow_mut().push(m);
@@ -270,15 +304,19 @@ mod bridge {
     }
 
     /// `bytes` as an `ArrayBuffer` or `Uint8Array`.
-    fn bytes(data: &JsValue) -> Option<Vec<u8>> {
+    /// `bytes` as an `ArrayBuffer` or `Uint8Array`, copied only when within the size cap
+    /// ([`open_size_error`]); `Err(len)` for an oversize one, never copied into the app's memory.
+    fn bytes(data: &JsValue) -> Option<Result<Vec<u8>, u64>> {
         let bytes = js_sys::Reflect::get(data, &JsValue::from_str("bytes")).ok()?;
-        if let Some(array) = bytes.dyn_ref::<js_sys::Uint8Array>() {
-            Some(array.to_vec())
+        let array = if let Some(array) = bytes.dyn_ref::<js_sys::Uint8Array>() {
+            array.clone()
         } else if bytes.is_instance_of::<js_sys::ArrayBuffer>() {
-            Some(js_sys::Uint8Array::new(&bytes).to_vec())
+            js_sys::Uint8Array::new(&bytes)
         } else {
-            None
-        }
+            return None;
+        };
+        let len = u64::from(array.byte_length());
+        Some(if open_size_error(len).is_some() { Err(len) } else { Ok(array.to_vec()) })
     }
 }
 
@@ -310,6 +348,31 @@ mod tests {
         assert_eq!(Incoming::parse(m.clone()), Some(Incoming::Cmd { id: "library.info".into(), params: "{}".into() }));
         m.params = Some(r#"{"rating": 5}"#.into());
         assert_eq!(Incoming::parse(m), Some(Incoming::Cmd { id: "library.info".into(), params: r#"{"rating": 5}"#.into() }));
+    }
+
+    #[test]
+    fn an_oversize_open_is_refused_not_copied() {
+        let max = crate::backup::MAX_BYTES;
+        assert!(open_size_error(max).is_none());
+        assert!(open_size_error(max + 1).is_some_and(|e| e.contains("too large")));
+        let m = Raw { name: Some("big.tif".into()), oversize: Some(max + 1), ..raw("lightcraft:open") };
+        assert!(matches!(Incoming::parse(m), Some(Incoming::Refused(e)) if e.contains("too large")));
+    }
+
+    #[test]
+    fn cmd_params_blank_or_null_are_an_empty_object() {
+        for text in ["", "   ", "\n", "null", " null "] {
+            assert_eq!(cmd_params(text), Ok(serde_json::json!({})), "{text:?}");
+        }
+        assert_eq!(cmd_params(r#"{"ids": [3], "rating": 5}"#), Ok(serde_json::json!({"ids": [3], "rating": 5})));
+    }
+
+    /// Before, any of these ran the command with `{}`: `photo.delete` then removed the selection.
+    #[test]
+    fn cmd_params_refuse_invalid_json_and_non_objects() {
+        for text in ["{ids: [3]}", "{\"ids\": [3]", "ids=3", "[3]", "3", "\"{}\"", "true"] {
+            assert!(cmd_params(text).is_err_and(|e| e.contains("nothing was run")), "{text:?} must not run the command");
+        }
     }
 
     #[test]

@@ -527,9 +527,17 @@ impl WebApp {
                 Incoming::Open { name, bytes } => {
                     wasm_bindgen_futures::spawn_local(store_file(self.originals.clone(), self.backend.clone(), name, bytes, ctx.clone()));
                 }
+                Incoming::Refused(error) => {
+                    if !bridge.post(&Outgoing::Failed(error)) {
+                        log::warn!("lightcraft: a refused open could not be reported to the page");
+                    }
+                }
                 Incoming::Cmd { id, params } => {
-                    let params: serde_json::Value = serde_json::from_str(&params).unwrap_or(json!({}));
-                    let r = if id == "web.stats" { Ok(self.web_stats()) } else { self.app.run(&id, params) };
+                    let r = match crate::host::cmd_params(&params) {
+                        Err(e) => Err(format!("{id}: {e}")),
+                        Ok(_) if id == "web.stats" => Ok(self.web_stats()),
+                        Ok(params) => self.app.run(&id, params),
+                    };
                     let response = match r {
                         Ok(v) => Outgoing::Response { ok: true, value: v.to_string() },
                         Err(e) => Outgoing::Response { ok: false, value: e },
