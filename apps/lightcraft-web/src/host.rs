@@ -219,14 +219,19 @@ mod bridge {
                     return;
                 }
                 let data = event.data();
-                let bytes = bytes(&data);
+                // moved, not cloned: an accepted photo can be hundreds of MB
+                let (bytes, oversize) = match bytes(&data) {
+                    Some(Ok(b)) => (Some(b), None),
+                    Some(Err(len)) => (None, Some(len)),
+                    None => (None, None),
+                };
                 let raw = Raw {
                     kind: string(&data, "type"),
                     name: string(&data, "name"),
-                    bytes: bytes.as_ref().and_then(|b| b.as_ref().ok().cloned()),
+                    bytes,
                     id: string(&data, "id"),
                     params: string(&data, "params"),
-                    oversize: bytes.and_then(Result::err),
+                    oversize,
                 };
                 if let Some(m) = Incoming::parse(raw) {
                     incoming.borrow_mut().push(m);
