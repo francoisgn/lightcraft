@@ -13,7 +13,9 @@
 //!   `*.lrcat-journal`, `*.lrcat.lock`);
 //! - a folder named `*.lrdata` or `*.lrcat-data` (Lightroom's previews and data);
 //! - a folder holding a `*.lrcat` at its top level (the catalog folder itself), or `Backups/`
-//!   next to one.
+//!   next to one;
+//! - Lightroom's backups (issue #2592), even with the catalog itself gone: a `Backups/` folder
+//!   (its newest backup) or one of its dated folders, `Backups/YYYY-MM-DD HHMM/`, holding a `*.zip`.
 //!
 //! The folder scan is bounded ([`SCAN_LIMIT`] entries, top level only) and every I/O error just
 //! means "not found": this never fails and never panics.
@@ -133,6 +135,34 @@ pub fn lightroom_catalog_at(path: &Path) -> Option<LightroomPlace> {
         {
             return Some(LightroomPlace { catalog: Some(catalog) });
         }
+        // `Backups/` alone (the catalog deleted): its newest backup
+        if lower == "backups"
+            && let Some(zip) = newest_backup(path)
+        {
+            return Some(LightroomPlace { catalog: Some(zip) });
+        }
+        // a dated backup folder, `Backups/2023-11-07 0900/`
+        if parent.and_then(lower_name).as_deref() == Some("backups")
+            && let Some(zip) = find_backup_zip(path)
+        {
+            return Some(LightroomPlace { catalog: Some(zip) });
+        }
     }
     None
+}
+
+/// The first `*.zip` file (by name) at the top level of `dir`, looking at no more than
+/// [`SCAN_LIMIT`] entries.
+fn find_backup_zip(dir: &Path) -> Option<PathBuf> {
+    let entries = std::fs::read_dir(dir).ok()?;
+    entries.take(SCAN_LIMIT).flatten().map(|e| e.path()).filter(|p| crate::lightroom_backup::is_backup(p) && p.is_file()).min()
+}
+
+/// The backup zip of the newest dated folder in `backups` (Lightroom names them
+/// `YYYY-MM-DD HHMM`, so the newest sorts last).
+fn newest_backup(backups: &Path) -> Option<PathBuf> {
+    let entries = std::fs::read_dir(backups).ok()?;
+    let mut dated: Vec<PathBuf> = entries.take(SCAN_LIMIT).flatten().map(|e| e.path()).filter(|p| p.is_dir()).collect();
+    dated.sort();
+    dated.iter().rev().find_map(|d| find_backup_zip(d))
 }

@@ -98,6 +98,28 @@ fn an_lrdata_folder_whose_catalog_was_renamed_finds_the_one_next_to_it() {
     let _ = std::fs::remove_dir_all(&root);
 }
 
+/// Issue #2592: someone who deleted Lightroom and its catalog keeps only `Backups/`; that folder
+/// (its newest backup) and each dated folder in it are refused and name the backup zip to import.
+#[test]
+fn lightroom_backups_without_their_catalog_are_refused_and_name_the_zip() {
+    let root = temp_dir("backups");
+    let backups = root.join("Lightroom").join("Backups");
+    for (dated, zip) in [("2019-03-26 0751", "Cat-2.lrcat.zip"), ("2023-11-07 0900", "Cat-v13.zip")] {
+        std::fs::create_dir_all(backups.join(dated)).unwrap();
+        std::fs::write(backups.join(dated).join(zip), b"PK").unwrap();
+    }
+    let newest = backups.join("2023-11-07 0900").join("Cat-v13.zip");
+    refused(&root, &backups, &newest);
+    refused(&root, &backups.join("2023-11-07 0900"), &newest);
+    refused(&root, &backups.join("2019-03-26 0751"), &backups.join("2019-03-26 0751").join("Cat-2.lrcat.zip"));
+    // a folder of zips that isn't in a `Backups/` folder is not Lightroom's
+    let other = root.join("Downloads");
+    std::fs::create_dir_all(&other).unwrap();
+    std::fs::write(other.join("photos.zip"), b"PK").unwrap();
+    assert_eq!(lightroom_catalog_at(&other), None);
+    let _ = std::fs::remove_dir_all(&root);
+}
+
 #[test]
 fn an_empty_folder_still_becomes_a_library() {
     let root = temp_dir("empty");

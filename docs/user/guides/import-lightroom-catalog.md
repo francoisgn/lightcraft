@@ -11,7 +11,7 @@ Choose **File** > **Import Lightroom Catalog…** and pick your `.lrcat` file. L
 
 1. Open the library you want the photos in. To start a new one, use **File** > **New Library…**.
 2. Choose **File** > **Import Lightroom Catalog…**.
-3. Pick your Lightroom Classic catalog, the file that ends in `.lrcat`. You can also give **File** > **Open Library…** a Lightroom catalog folder. LightCraft then offers this import instead of making a library there.
+3. Pick your Lightroom Classic catalog, the file that ends in `.lrcat`. If Lightroom and its catalog are gone, pick one of its backups instead: the `.zip` file in a dated folder of the catalog's `Backups` folder. You can also give **File** > **Open Library…** a Lightroom catalog folder. LightCraft then offers this import instead of making a library there.
 4. Wait for the import to finish. It runs in the background, with a progress row in the activity stack at the top left. A message reports how many photos were added.
 
 If you change your mind, one **Edit** > **Undo** reverses the changes to the catalog.
@@ -38,4 +38,5 @@ Original files stay where they are, and LightCraft refers to them in place. Phot
 - Importing the same catalog again does not duplicate virtual copies or collections. By default, edits you already made in LightCraft are kept.
 - A big catalog can take a long time. In one report on an earlier version, 38,000 photos took about 25 minutes from a USB SSD.
 - To stop the import, click ✕ on its row in the activity stack. This works while LightCraft reads the catalog. Once it starts adding the photos, it finishes.
+- A backup is unpacked into a temporary folder in your library while it is read, then deleted. The `.zip` file is not changed. Importing a backup of a catalog you already imported does not add its collections twice.
 - The browser version cannot import a catalog.
