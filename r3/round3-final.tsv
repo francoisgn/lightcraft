@@ -1,0 +1,441 @@
+number	final_bucket	order	keeper_of	closed_by	issues_closed	changed_from_reviewer	reason
+133	C-camera-colour	1				no	Sony ARW calibrated starting colour + pipeline/GPU tone changes; 17 code conflicts, CHANGES_REQUESTED. Camera-colour decision, likely superseded by later work.
+159	D	1		main arw.rs:415 YCBCR_OFFSET		no	Proven: main arw.rs:415 YCBCR_OFFSET / read_ycbcr_tiles decode Sony M/S ARW.
+160	D	1		stale draft		no	Author marked it DO NOT MERGE (WIP); untouched since Oct 8, with 7 code conflicts on a catalog-v3 base. Close, or the author revives it.
+270	D	1		stale draft		no	WIP draft Nikon base colour, 21 code conflicts, untouched since 2026-10-08.
+327	D	1		593,598,613,629		no	Umbrella draft (33 code conflicts, idle since Oct 12), already split into #593/#598/#613/#629 (593's branch is "split/export").
+360	E	1				no	Compressed 12-bit ORF: changes requested, CI red, 5 code conflicts; overlaps #1162/#2068.
+388	D	1		818		no	Android tablet POC with 7 code conflicts; #818 is the fuller mobile port (CI green, merges clean).
+435	3b-export-merge	2			430	no	Approved, clean; CI red.
+514	C-process-v3	1				no	Default raw tone curve fitted to Lightroom, written into V2, but V2 has shipped on main: retarget to a new process; 5 code conflicts.
+587	C-new-subsystem	1				no	Immich import: new lightcraft-immich crate and network integration.
+593	C-product	18				no	Exports render at 2× then downsize: an export sharpness vs time/memory product call (24 MP 3.3 s vs 1.7 s noted); 1 code conflict.
+598	E	1				no	Vibrance/Saturation fitted to Lightroom: render look, changes requested, no commit since Oct 8.
+613	E	1				no	Lightroom tone chain on ProRAW as fitted operators: 9 code conflicts, changes requested, no commit since Oct 9.
+629	E	1				no	Calibration "as Lightroom renders it": render look, 3 code conflicts, changes requested with no commit since Oct 8.
+641	C-catalog-format	2				no	Random photo, album and stack ids for multi-machine catalogs: a catalog identity architecture change. Stale.
+644	E	1				no	Draft (stale since Oct 16): section bypass in renders and sync; 4 code conflicts; main row LR-EDIT-SECTION-TOGGLE already ✅.
+672	E	1				no	Two-field Coolpix NEF + CYGM with gray-world colour; CI red; colour approach also needs maintainer view.
+673	3b-raw	1				no	Green, clean; clean-room note; chroma gains approximate.
+717	D	1		main faces.rs tr(); font policy		no	Proven: faces.rs:172,183 already tr(); theme.rs system_cjk_font loads OS fonts (policy).
+722	D	1		unreviewable		no	Draft, 1768 files / 280k lines 'Lightroom Classic + Immich' fork dump; can't be reviewed or merged.
+732	C-camera-colour	2				no	Refine partial looks with measured colour: camera colour change, base 10-10, 2 conflicts.
+758	C-camera-colour	3				no	Median Canon tone curve for CR3s without an embedded JPEG: changes camera-colour look. Fidelity decision.
+762	C-process-v3	2			757	no	Sharpening Radius/Detail at pixel scale as V3; overlaps #2332 sharpening; CI red.
+768	3b-library	1				no	Green, clean, many rounds; needs final reviewer.
+775	3b-library	2				no	After #768; 2 conflicts.
+776	E	1				no	Draft stacked on #768 (smart albums kept off loops).
+777	C-ci-policy	4				no	Refusals shown as toasts via app.act plus a new CI gate (xtask refusals) and CLAUDE.md rule; 8 code conflicts.
+784	C-camera-colour	4				no	Partial camera look from bright pairs for sky frames: camera colour change.
+797	C-new-subsystem	3				no	Map view with OpenStreetMap tiles: network tile fetching and tile policy, new module. Maintainer call; CI red.
+800	C-catalog-format	1				no	Catalog storage redesign (format 10, FORMATS table, 3.5k lines) and the base of a 13-PR backup stack. Red CI. Architecture call.
+804	C-new-subsystem	4				no	Info-panel map, stacked on unmerged #797 (OSM tiles); red CI.
+807	C-camera-colour	5				no	Refines DNG camera-preview colour fitting (camera colour look). Green and clean, but a render-fidelity decision.
+810	C-new-subsystem	5				no	Map geotag by drag, stacked on #797; CI red.
+814	E	1				no	Draft stacked on #800. Claims catalog format v11.
+818	C-new-subsystem	2	388		707	no	iOS/iPadOS/Android port (new crate, 185 files); platform-scope decision.
+819	C-new-subsystem	6				no	Map Location Filter + GPS Area rule, stacked on #810 → #797; CI red. Waits on the Map decision.
+823	E	1				no	Draft stacked on #814. Settings deduplication overlaps #2203's purpose.
+841	E	1				no	Draft in the backup stack (stacked on #814).
+856	E	1				no	Draft in the backup stack (stacked on #841).
+870	E	1				no	Draft in the backup stack (stacked on #856).
+894	D	1		stale draft	881	no	Draft titlebar standardisation, idle since Oct 11, 3 code conflicts (main.rs, topbar.rs).
+896	C-dependencies	1				no	Nikon HE NEF via new dependency oxideav-jpegxs 0.0.8 (young crate, JPEG XS); 2 code conflicts.
+901	C-ci-policy	1				no	Moves FreeBSD/ARM64 checks to nightly; conflicts with main's shared workflows and opposes #2048: CI policy call.
+906	C-new-subsystem	7				no	Map saved locations, stacked on unmerged #797 chain; red CI.
+910	3b-export-merge	8				no	Green; docs-only conflict; 1.4k lines external-editor stacking; needs reviewer.
+916	C-new-subsystem	8				no	Map track logs, stacked on unmerged #797→#906 chain; red CI.
+921	E	1				no	Map phase 8 stacked on open #916 (13920 lines with the stack), CI red, code-conflict rules.rs.
+924	C-camera-colour	6				no	New camdb crate (per-model colour data with provenance), feeding the raw input transform. New crate, camera-colour decision.
+930	C-provenance	5				no	Downloads/uses lensfun (CC-BY-SA) database at runtime plus UI; licence/provenance policy call.
+931	C-new-subsystem	29			892,895	no	New apps/lightcraft-uninstall crate that deletes user data (optionally originals) from the MSI: new crate, data-loss risk.
+944	E	1				no	Stale draft (Oct 12) with 10 code conflicts and its own V2/V3/V4 numbering, now obsolete.
+955	C-product	1				no	Masking workspace redesign (2350 lines, workspace.rs) plus an unrelated crates/fetch test refactor; 3 code conflicts.
+980	C-process-v3	3	1059,1261		905	no	Distinct vignette styles with CPU+GPU+equivalence tests; most complete #905 fix, but it puts the change into the already-shipped V2.
+999	3b-ui-components	27			937	no	3 code conflicts (local.rs, detail.rs); CI pending; closes #937.
+1002	3b-library	4			903	no	CI pending; 3 conflicts preview/library.
+1004	E	1				no	Draft in the backup stack (stacked on #870).
+1014	3b-lrcat	4				no	Green; 1 conflict lightroom_catalog.rs.
+1025	E	1				no	Draft in the backup stack (stacked on #1004).
+1026	C-process-v3	4				no	Colour NR at half resolution (CPU+GPU): changes the NR output of existing photos without a process; overlaps #1348's NR rework.
+1031	E	1			1006	no	A rename/XMP-extension fix that spans 18 files on a stale base (conflicts in gpu/backend.rs). Rebase and narrow it.
+1034	E	1				no	Draft in the backup stack (stacked on #1025).
+1043	E	1				no	Draft in the backup stack (stacked on #1034).
+1048	E	1			648	no	Issue forms bundled with 3-OS CI, GPU and test changes (21 files): split; CI part duplicates #2302.
+1054	E	1				no	Draft in the backup stack (stacked on #1034).
+1059	D	1		980	905	no	Paint vignette fix in place without a process, and it also changes negative Paint (lift to 0.08); #980 is the process-aware keeper.
+1060	C-process-v3	5	2330			no	Particle film grain gated as process V3 (V1/V2 keep their grain), CPU+GPU; render look plus V3 collision.
+1063	C-camera-colour	22	2074			no	Import the user's own .dcp camera profiles; well tested with a CC0 D750 corpus. Policy call on DCP support (clean-room/profile rules).
+1065	C-product	2				no	More render stages on GPU, loupe drafts from GPU textures (2016 lines): render-fidelity/architecture review.
+1067	3b-export-merge	7				no	Locale files rewritten wholesale: regenerate before merge.
+1069	C-camera-colour	7				no	Per-plane DNG black levels change rendering (render fidelity). Stale base, 9 conflicting files.
+1072	3b-library	9			649	no	release.yml conflict; python at packaging.
+1073	C-camera-colour	8				no	Adds Canon CR2/CR3 to reproducible camera calibration (camera colour). Stale base, 8 conflicting files.
+1074	3a-t1	9				no	Base #1027 is merged (5e9f7f1a6); GPU equivalence test; docs-only conflicts.
+1075	E	1				no	Draft in the backup stack; waits for its base (#1054 and #800).
+1079	E	1				no	Stale (Oct 11), no CI, 10 conflicting files from an old base. Needs a rebase.
+1095	3b-import-dup	5				no	No CI; 1 conflict; after #1117.
+1104	C-dependencies	6				no	Redraws icons from Lucide (ISC): third-party icon set vs CLAUDE.md's original-vector icons; #1926 proposes Tabler. Asset policy call.
+1115	E	1				no	Draft: lateral CA on ILCE-7RM6 mosaic (main keeps it off, arw.rs:792); 6 code conflicts.
+1117	3b-import-dup	4			1109	no	Clean; no CI run; 485 lines.
+1120	C-new-subsystem	9				no	Share to Flickr: new lightcraft-flickr crate (OAuth 1.0a, hmac); new service integration.
+1122	3b-library	5			1112,1194	no	CI red; 3 conflicts; 3k lines.
+1124	3b-bg-tasks	4				no	Green; 3 conflicts sync files.
+1127	E	1				no	Draft stacked on #1095.
+1128	3b-library	6			1015	no	No CI; 1 conflict lib.rs.
+1137	E	1				no	Draft web session recovery; 2 code conflicts, idle since 10-12.
+1147	3b-perf	8			1145	no	Clean; no CI run; measured win.
+1148	D	1		1159		no	Proven: pr/1148 is an ancestor of pr/1159 (3 of its 10 commits).
+1152	C-product	3			1057	no	Catalog read-tracking (reads.rs) so slider ticks keep unrelated views: cache-invalidation architecture change in catalog/engine.
+1153	3b-library	3				no	Green; docs conflict; engine only.
+1155	E	1				no	Converts 9 locale files to CRLF (20k-line churn) and claims catalog v10, which 4 others also claim. 2 code conflicts.
+1156	3b-perf	9				no	2 conflicts; after #1168.
+1158	C-product	16				no	Move Files to Trash (destructive) with own XDG Trash impl + objc2 deps in engine on macOS; 2.5k lines.
+1159	C-ci-policy	3	1148			no	Adds .github/workflows/ci.yml (3 OS + GPU lavapipe/WARP); main has no ci.yml, so it is a CI-policy decision; contains #1148; CI red.
+1162	C-provenance	1				no	Lossless ORF decoder (32 files) using LibRaw binary as black-box oracle; 3 code conflicts; maintainer to pick ORF approach.
+1164	C-dependencies	7			972	no	Edit-panel icon buttons using transcribed Lucide (ISC) icons; stacked on open #1104: icon-set adoption is a design/licence call.
+1168	3b-perf	12				no	Green; changes Space/toggle-zoom like #2065: coordinate; after #1922.
+1169	C-unsafe	1				no	Windows PTP/MTP import adds crate cameras with COM unsafe; needs unsafe/new-crate approval. No CI.
+1170	3b-import-dup	6				no	Green; 3 conflicts import/walk; needs reviewer.
+1181	C-ci-policy	6				no	4k-line Python render_fidelity.py tool: tooling policy.
+1188	C-ci-policy	5			123,1184	no	Makes AGENTS.md the one agent-instructions file and adds CONTRIBUTING.md: repo policy call; CLAUDE.md conflicts.
+1195	3b-ui-components	19				no	3 code conflicts (native_menu.rs, menus.rs, state.rs); no CI.
+1204	D	1		1837	506	no	Third macOS open-documents PR; adds a new unsafe crate (crates/opendocs, objc2) against the single-sysmem rule; CI red. Keeper #1837.
+1206	C-camera-colour	9			865	no	Camera colour matrix learning for dark scenes (colour-look change), stacked on #784. Maintainer render-fidelity call.
+1208	3b-heif-meta	1	2290		1233	no	Keeper over #2290 (aiongg round-1 ruling); CI pending; mech-conflict.
+1209	3b-raw	5			1203	no	No CI; new UI section.
+1218	3b-ui-components	14				no	No tests; conflicts bottombar.rs; depends on icon-set ruling for the rest.
+1219	C-new-subsystem	33				no	Switches new Sky selections to the SAM 3 model (AI model or behaviour change). Stale base, 11 conflicting files.
+1220	C-new-subsystem	10				no	Experimental DSRNet reflection removal: new candle crate and user-installed weights; new feature/model decision.
+1221	C-unsafe	4				no	HDR display on Linux via a new crate hdr-display (+ workspace deps); overlaps #1700 (Windows/Wayland HDR). Choose an architecture first.
+1223	E	1			1225	no	Stale (Oct 12); a raw-probe perf change that conflicts in unrelated files (people.toml, catalog lock.rs). Rebase or split.
+1226	C-product	15				no	151 files / 12k lines 'preserve Lightroom edits + rendering fidelity': mixed scope with render-look changes. Needs splitting and a fidelity decision.
+1227	E	1				no	Draft prototype (Subject/Background candidates) with 11 code conflicts, idle since 10-15.
+1229	C-unsafe	2			506,1141	no	macOS Open Documents through a new unsafe crate (macos-open) and plist dep, Info.plist rewrite; competes with #1204.
+1231	E	1			1230	no	Stale, 8 code conflicts, and it claims catalog format v8, which main already uses.
+1232	3b-lrcat	1	1247		1234	no	Keeper over #1247 (aiongg agreed); green; 5 conflicts; main lightroom_sqlite.rs:88 still caps tables.
+1240	3b-gpu	4			1228	no	46 files; needs GPU-machine test.
+1241	C-new-subsystem	11			497	no	Timelapse video: new crate with git deps on FilmCraft encoders; new subsystem.
+1243	3b-ui-components	16				no	Green; conflicts left.rs/tests_panels.rs.
+1244	3b-ui-components	15				no	CI red; conflicts left.rs; after #1243.
+1245	3b-ui-components	17				no	Green; docs conflict; touches native_menu.rs like #2513: rebase after it.
+1247	D	1		1232		no	Same goal as #1232 (stream catalog tables, #1234). #1232 also reports dropped develop settings and closes #1234; keeper #1232 (more complete).
+1259	D	1		1349		no	NR Contrast in local.rs only; superseded by #1349's complete NR rework; also has a stale-cache bug.
+1261	D	1		980	905	no	Paint vignette toward white on CPU only (GPU unchanged), in place without a process; #980 is the complete keeper.
+1283	C-process-v3	6			1237	no	Dehaze V3 (patch dark channel, eased response); render look plus V3 collision; also bundled in integration PR #1441.
+1284	C-provenance	4				no	NEF ColorBalance WB for D2H/D70; offsets admittedly taken from ExifTool's Nikon.pm source: provenance-policy call; CI red.
+1286	C-process-v3	7			1237	no	Follow-up to #1283 (on hold): per-channel dehaze airlight as V4; depends on #1283's V3.
+1287	3a-t1	1				no	Verified: 652 lines, 16 tests, clean merge, green; base for #2522/#2524/#2525.
+1303	E	1				no	Draft at the top of the 13-PR backup stack (#800→#814→…→#1303, about 17k lines). Waits for #800's format decision.
+1305	E	1			1278	no	Blackmagic 12-bit DCT JPEG DNG tiles (571-line decoder); CI red on head, author pushed today.
+1313	3a-t1	5				no	Approved, clean; new frame_rate.rs with 4 tests; no CI run (none).
+1319	C-camera-colour	10				no	calibrate --pairs/--from-pairs plus issue form for crowd-sourced colour pairs: colour-data policy decision.
+1322	C-new-subsystem	34			377	no	Classical whole-photo Sky/Subject/Background analysis: changes existing AI-shape masks while SAM 3 is the M12 direction; CI red.
+1325	E	1				no	Draft; patches heic-rs to a personal git fork branch via [patch.crates-io]; wait for upstream release.
+1332	E	1			1310	no	Stale (Oct 12), no CI, 10 conflicting files. Needs a rebase by the author.
+1342	C-camera-colour	11			1315	no	Camera profile calibration wizard with named profiles; 12 code conflicts, no CI. Camera-colour product decision.
+1348	C-process-v3	8			815	no	Colour NR rework (joint linear chroma, speck brake; CPU+GPU) as V3; base of #1349; CI red.
+1349	C-process-v3	9	1259		1129	no	Luminance NR rework (wavelet, Contrast, Detail; CPU+GPU) as V3/V4, stacked on #1348; render look plus the V3 collision.
+1350	C-process-v3	17				no	Hot-pixel removal turned on by default for new raws changes render/cache keys; a default-look decision.
+1360	C-product	9				no	Arabic catalog without RTL/shaping support; #1739 adds RTL order. The Arabic approach (shaping in egui) is the maintainer's call.
+1374	C-dependencies	4				no	Seven-size type scale across 48 files, new CI gate 'xtask type', CLAUDE.md rule, new unicode-segmentation dep.
+1382	C-new-subsystem	12				no	Relight with MoGe-2 AI depth in pure Rust: big new subsystem and AI model; 6 code conflicts, no CI.
+1383	C-process-v3	10				no	Process V3 calibrated Contrast and Blacks, with Python fit tools and JSON; fails rustfmt; V3 collision.
+1384	3b-raw	2				no	CI pending; 2 conflicts; one-model render change.
+1385	3a-t3	4				no	Docs only (PR template).
+1386	3b-lrcat	6			205	no	No CI; 1 conflict; 2.5k lines.
+1390	C-product	14				no	Zoom windows match the full render: 5.9k lines across 76 files, 4 code conflicts; the blast radius needs a maintainer call.
+1399	3b-i18n	2				no	README links conflict; translation check.
+1400	3b-perf	14			709	no	67 files / 5k lines, 4 conflicts; dedicated integrator pass; base of #1551.
+1409	C-unsafe	5			1407	no	Real SMB fix (plain fsync fallback), tested, approved, but adds a second unsafe FFI call to crates/sysmem: new unsafe needs maintainer OK.
+1414	E	1				no	Per-photo Auto tone with "own design" constants not refitted to Lightroom; FredApps changes-requested still open.
+1415	3b-export-merge	1				no	Clean, green; changes explicit-path semantics (no silent overwrite): note in whats-new.
+1417	3a-t1	15				no	Green, clean, 4 tests incl. hostile input.
+1418	3b-culling	2			1251	no	Green; conflicts cull.rs with #2279/#2281: rebase after them.
+1420	3b-perf	10				no	No CI, idle; 1 conflict.
+1422	3b-web	1			230	no	Green; mech-conflict; 26 files.
+1424	E	1				no	Draft with a TEMP verification workflow to drop before merge; settings dialog test fix only.
+1425	3b-import-dup	3			1401	no	CI red; explains duplicate matches; rebase after #2034/#1552 (import.rs).
+1433	E	1				no	Draft, stale, code conflicts in import.rs.
+1441	D	1		individual PRs		no	Proven: 62 commits not on main, bundling ~22 PRs that are open separately.
+1458	E	1				no	F1 is remapped from Help to the shortcut dialog, against main's deliberate F1 Help (be762c726); H mask-pins part is fine.
+1460	E	1				no	HDR histogram/settings animation in edit.rs only; CI red and no test added for the behaviour change.
+1463	C-camera-colour	12			1328	no	Full-size raw demosaic on the white-balanced mosaic with a clip mask: changes the raw render. Fidelity decision; stacked on #1400.
+1464	3a-t3	9				no	Verified main quick-xml 0.38 -> 0.41; last in track; re-run #2529 CI after (uses GeneralRef API).
+1486	E	1				no	Draft Nextcloud source; 26 code conflicts and a path dependency outside the repo.
+1499	3a-t4	1				no	4 tests; export.rs only; docs-only conflict.
+1551	3b-perf	15			1492	no	Stacked on #1400 (verified); after it.
+1552	3b-import-dup	2				no	Green, mech-conflict; import-dialog option; rebase after #2034.
+1554	C-product	4				no	Edit panel redesign (cards, edited marks, pinned header) plus develop panel_sections helper: visual paradigm change; code-conflict widgets.rs.
+1566	C-new-subsystem	30			487	no	Winget publishing workflow via third-party action and a PAT secret on each release: release-process decision.
+1568	3b-library	7			1553	no	Green; user-triggered only.
+1575	3b-walk-sidecars	4			1523	no	4 conflicts, no CI; main sidecar.rs:527 still plain find_sidecar.
+1585	C-new-subsystem	31				no	New MCP auto_develop tool + top-level skills/ dir with OpenAI agent yaml; product/agent-surface decision.
+1589	C-product	5				no	Shrinks the whole chrome to PhotoCraft control scale: UI-wide visual decision; 6 code conflicts, CI never ran.
+1603	3a-t4	4				no	2 tests; keyword_list.rs; no CI run; locale conflicts trivial.
+1605	C-new-subsystem	13				no	New crate crates/vision with SigLIP 2 on candle: new dependency stack and AI-model policy decision; clean, CI green.
+1606	C-new-subsystem	14				no	Content search 2/8: new lightcraft-vision crate (candle, SigLIP 2) + model downloads; new crate/dependency decision.
+1607	C-new-subsystem	15				no	Content search 3/8 (index + background indexing), stacked on #1605; CI red.
+1608	C-new-subsystem	16				no	Content search 4/8 (search UI, Find Similar) stacked on unmerged chain; red CI.
+1609	C-new-subsystem	17				no	Content search 5/8 (auto-tags, Contents filter), stacked on #1607; CI red, 4 code conflicts.
+1610	C-new-subsystem	18				no	Content search 6/8 (CLIP model family) stacked on unmerged chain; red CI.
+1611	C-new-subsystem	19				no	Content search 7/8 (GPU towers), stacked on the 1605→1607→1609 chain; CI red, 4 code conflicts. Waits on the M12 decision.
+1612	C-new-subsystem	20				no	Content search 8/8 stacked on unmerged #1605-#1611 (new vision crate, models); red CI, 4 code conflicts.
+1626	3b-ui-components	18				no	Green; docs-only conflict; base of #1631.
+1631	E	1				no	Draft stacked on open #1626; 105 files, 9 code conflicts incl. CLAUDE.md and xtask refusals.
+1635	E	1				no	Draft, stacked on #1169; macOS PTP via ImageCaptureCore with objc unsafe. Not ready.
+1638	3b-import-dup	9				no	No CI; 3 conflicts; after walker ruling (#2459).
+1639	3b-ui-components	12				no	Code conflicts compare.rs/detail.rs; no CI.
+1641	E	1				no	Stale (Oct 13), 5 code conflicts, and it claims catalog format v9 (taken on main).
+1642	C-product	7				no	Moves the activity stack (a CLAUDE.md-cited standard) under a top-bar bell and rewrites docs/background-tasks.md: a UI-paradigm call.
+1644	3a-t4	2			1624	no	Verified user_notice() split + test; closes #1624.
+1649	E	1				no	Draft stacked on #1642 and #1711 (contains both); waits on them.
+1651	C-product	6				no	Restyles the Charcoal theme to the ArtCraft palette and bumps craft-ui rev: brand/visual decision.
+1654	D	1		main masks.rs:523		no	Proven: main masks.rs:523 MAX_STROKE_DABS=2M + :601 clamp.
+1673	D	1		1728		no	Korean UI; 9 code conflicts incl. CLAUDE.md, flake, build.rs; #1728 (green, 3 conflicts) looks the better base: confirm cross-group.
+1674	3b-ui-components	13				no	Agent PR, no CI, idle; 2 conflicts.
+1684	E	1			446	no	Draft, 7 code conflicts, and it claims catalog format v9, which main already uses for preview_checked.
+1692	E	1			1619	yes	Reviewer found 1/3 s now shows 0.3333333333333333: fix display rounding, then fast lane with #2542.
+1697	C-process-v3	16				no	HDR edits' SDR rendition rolls highlights off instead of clipping; claims an in-place bug fix (no process); CI red.
+1699	C-crop-model	1				yes	Crop model ruling: LrC photo-rotates (#1699, fixes #2319) vs current box-rotates (#1876) vs opt-in (#2344).
+1700	C-unsafe	3				no	HDR display output adds new crate hdrmeta with unsafe wgpu-hal device creation; macOS untested. Needs architecture + unsafe sign-off.
+1704	C-product	1			1505	yes	Original/DNG export fails for most camera files unless policy=All: default-behaviour call before merge.
+1711	3b-bg-tasks	1				no	Green; conflicts tasks.rs; blocks #1649/#1933.
+1713	E	1				no	Draft CPU Lens Blur with 5 code conflicts and no activity since Oct 14.
+1714	E	1				no	Draft alternative NR Contrast and edge-aware chroma as V3, with 3 code conflicts; overlaps the #1349/#1348 NR rework.
+1718	3b-heif-meta	2	1971		1618	no	Keeper over #1971; 2 conflicts; closes #1618.
+1728	3b-i18n	1	1673,2435			no	Keeper over #1673/#2435 (green, smallest code change); 3 conflicts.
+1732	D	1		1888		no	Proven: pr/1732 is an ancestor of pr/1888.
+1735	3b-lrcat	2				no	CI red; conflicts with #1232 on 5 files: rebase after it.
+1736	3b-tooling	3			1525	no	620 lines, no CI run; agent-visible limits (count<=10): update control-protocol.md.
+1739	C-product	8				no	Arabic UI with RTL display order touches 44 files (14 code conflicts); RTL layout is a UI paradigm call; overlaps #1360.
+1775	E	1			1501	no	Strict dir fsync before removing the original; red CI; a failing dir sync now keeps every original on volumes refusing it.
+1781	3b-library	8				no	Green; mech-conflict.
+1812	C-licence	1				no	Relabels the RawNIND weights CC BY 4.0 (dual licence) and turns the download on by default in app and CLI: a licence/release-policy decision.
+1822	3b-ui-components	26			1707	no	Takes Presets default Shift+P: keymap call, otherwise fine; no CI.
+1828	C-licence	3				no	X-Trans AI denoise via RGGB re-mosaic (interpolated input to the model); overlaps #2355's X-Trans denoise — choose one approach.
+1830	C-new-subsystem	21				no	Draft: Craft AI assistant, 12k lines, new ureq/unicode-bidi deps, loopback model runtimes: product decision first.
+1837	C-unsafe	8	1204			no	macOS open-from-Finder via new external crate fmv-macos-events (the one PhotoCraft/FilmCraft use, no unsafe in repo) and a CLAUDE.md line; smallest of three.
+1846	3a-t1	21				no	Locale + i18n test; conflicts only pl-formats.json/docs (also touched by #1603/#1868: same track).
+1848	3b-gpu	1			1764	no	Clean, green, well tested; GPU core change: merge alone + bench.
+1851	C-product	17			1706	no	LR Delete dialog plus a hand-rolled trash (freedesktop, ~/.Trash, writes $Recycle.Bin $I records); competes with #1158's trash engine.
+1856	3b-library	12			1854	no	Green; lib.rs conflict.
+1859	3a-t3	7	2018		1841	no	Verified: main rust-version 1.90, jixel 0.3.4 on main needs 1.94; keeper over #2018.
+1862	3b-bg-tasks	5			1752	no	Green; 1 conflict; one undo step.
+1868	3a-t4	5				no	Locale fill only; conflicts with #1846 in pl.json/pl-formats.json: resolve by keeping both.
+1876	C-crop-model	2			1794	yes	Fixes inversion on the current model; conflicts with #1699 in detail.rs; decide model first.
+1878	3a-t2	8				no	4 tests, pure preview_rect; no CI run; merge.rs only.
+1888	C-new-subsystem	32	1732			no	Focus stacking (Photoshop feature, beyond LR parity) stacked on #2483/#1732, 56 files; merge after #2482/#2483 if accepted.
+1891	C-camera-colour	13				no	Sony Kelvin presets, stand-in matrices and focus points for all bodies: camera colour change, 3 code conflicts incl. kelvin_presets.rs.
+1896	D	1		2416	1873	no	Duplicate of #2416 for #1873. Keeper #2416: restore UI, catalog format bump, CI green. This one has no CI run and no format bump.
+1900	3b-ui-components	8			1885	yes	Flips egui selectable_labels globally; only 2 opt-ins on main; audit copyable texts (metadata, errors) first.
+1903	3b-library	19				no	Follow-up to merged #1903 (79d726f85); CI red; small print fix.
+1907	3b-bg-tasks	2				no	Clean, green; activity row; 25 files.
+1910	E	1				no	Lao catalog; FredApps CHANGES_REQUESTED still standing; 3 code conflicts.
+1914	3a-t1	6				no	Opt-in setting, default off; 1 test; green.
+1916	3b-ui-components	24				no	CI red; conflicts shortcuts.rs.
+1922	3a-t1	8				no	Small; detail.rs only; #2065/#1168 rebase after it.
+1925	3b-bg-tasks	3				no	Green; mech-conflict; 50 files, reviewed.
+1926	C-dependencies	8				no	Replaces the code-drawn sidebar and bottom bar icons with Tabler SVGs plus a new dep; asset/UI policy call. CHANGES_REQUESTED.
+1928	C-dependencies	9				no	Enables winit wayland-csd-adwaita-notitle (new sctk-adwaita dep) and commits 600 KB of screenshots into docs/.
+1931	3b-import-dup	8			1918	no	No CI; 2 conflicts media/import.
+1933	E	1				no	Draft stacked on #1711 (4035 lines); not ready for review.
+1936	E	1				no	Rebase onto #2370 (same author) or close.
+1938	C-unsafe	6				no	Adds a second unsafe FFI call (fsync) to crates/sysmem plus a catalog→sysmem dependency, a policy call. Draft stacked on #1409 (other group).
+1943	E	1				no	Draft stacked on draft #1933 (4644 lines, 3 code conflicts).
+1953	C-process-v3	11				no	Process V3: bright saturated colours keep saturation (gamut map change, CPU+GPU); render look, and the V3 collision.
+1954	D	1		2015	1944	no	Proven: byte-for-byte same keywords.rs hunk as #2015; #2015 has 2 tests vs 1.
+1955	E	1				no	Draft stacked on open #1943 and #1153; 122 files / 12k lines, 13 code conflicts.
+1956	3b-ui-components	21				no	Clean, CI pending; 12 tests; before #2531/#2394.
+1958	3b-ai	1				no	Clean; add/add clash on cpu.rs with #2533: merge first.
+1961	E	1				no	FredApps draft: Windows window geometry through eframe persistence; adds lockfile deps; idle since Oct 16.
+1962	C-dependencies	2				no	Network printing via craft-libs PR refs (refs/pull/112/head, 116/head) and a new crates/print: wait for upstream merge and an immutable pin.
+1970	E	1				no	Control-port token auth: changes requested unanswered, 3 code conflicts; #1991 (merged) and #2377 already took its socket changes.
+1971	D	1		1718	1618	no	Duplicate of #1718, which is more complete (TIFF Make/Model, every policy tested, never infers Make from the label). This one also rewrites existing labels on
+1973	E	1			1948	no	Draft: readback timeout recovery; 2 code conflicts with main's #1858 poll changes; also changes submit() like #2351.
+1976	3a-t3	8				no	Approved commenter; bit-exact test vs old path; dhat example dev-only.
+1978	C-new-subsystem	35				no	Apple legacy gain-map reconstruction with no caller (module + example + Swift tool); accept unwired code and Swift reference tool?
+1979	3a-t1	7			1899	no	Approved, green, clean, 4 headless tests.
+1995	E	1				no	Changes requested; code conflict. Applies embedded JPEG/TIFF XMP at import and writes Rating into exported EXIF, both behaviour changes.
+2010	3b-export-merge	3				no	Green; test-file conflict; before #2030.
+2011	3b-ui-components	20				no	CI pending; conflicts lib.rs; 15 tests.
+2014	D	1		2032	1999	no	Keeper #2032; CI red and presets.rs conflict; equivalent logic.
+2015	3a-t2	1	1954		1944	no	Verified identical fix to #1954 with more tests; main keywords.rs:448 still std::fs::write.
+2016	3b-ui-components	7			1950	no	After #2195; CI red; 57 files incl. catalogs; agree glyph with #2525.
+2017	D	1		2032	1999	no	Keeper #2032 (CI green, smallest); note #2017 merges clean today and has 3 tests: legitimate fallback if #2032 is not rebased.
+2018	D	1		1859	1841	no	1-line subset of #1859.
+2020	E	1				yes	Verified: 0 TaskGuard/activity.start in diff; multi-second worker job needs an activity row (CLAUDE.md).
+2021	3b-import-dup	7				no	No CI; drive-by edits to drop.
+2029	3b-export-merge	5				no	Approved, green; changes pano output.
+2030	3b-export-merge	4				no	CHANGES_REQUESTED latest; conflicts with #2010.
+2032	3b-library	18	2014,2017		1999	no	Own PR (francoisgn): green, smallest, 2 tests; mechanical presets.rs conflict (context_menu/marked rename): rebase. #2017 is the clean-merging fallback.
+2034	3b-import-dup	1				no	Approved, green, clean; first of three #1401 approaches (sync folder).
+2043	3b-perf	4				no	CI red; conflicts index.rs with #2418/#2415.
+2047	3b-perf	5				no	Approved, clean; CI red.
+2048	C-ci-policy	2				no	Adds apps/** to FreeBSD and Windows ARM64 PR triggers; opposite direction to #901 (nightly only): one policy decision for both.
+2051	3b-lrcat	3				no	Stacked on #1735 (verified); after it.
+2060	E	1				no	FredApps CHANGES_REQUESTED; Cargo deps point at personal forks (wdunn001/craft-libs, collab-craft) with a [patch] override.
+2065	3b-perf	13			1895	no	CI red; coordinate with #1168; after #1922.
+2068	C-provenance	2				no	Lossless ORF decoder whose carry[3]/bias/lz==12 structure mirrors dcraw olympus_load_raw; no tests, CI none.
+2072	3a-t4	3				no	Approved, green; #2395 rebases after it.
+2073	E	1				no	Changes requested, red CI. Photo Merge memory-budget guard touches 21 files.
+2074	D	1		1063		no	'Personal fork' commits: .dcp import duplicates #1063, plus an unrelated offline web PWA (sw.js); no CI, no tests, 5 code conflicts. Keeper #1063.
+2075	E	1				no	Dialog confirm buttons named for their action; CI red and untouched since 10-18.
+2076	3a-t1	2				no	Verified clean/green/approved; merge before #2078/#2164 (both conflict with rating.rs/widgets.rs).
+2077	3a-t1	3				no	Verified clean/green/approved; #2079/#2373 rebase after it.
+2078	3b-ui-components	1				no	After #2076; CI red (widgets.rs conflict); approved.
+2079	3b-ui-components	2				no	After #2077; approved, green, clean; 49 files: merge alone, run ci.
+2080	3b-ui-components	3				no	After #2079; approved, green, clean; 52 files; sequence before #2194.
+2086	C-dependencies	3				no	Adds the unicode-normalization dependency (new crate dependency means a maintainer call). Hierarchical keyword save/read rework; Cargo.toml conflict.
+2087	3b-catalog-format	2				no	Bumps VERSION to 10; no CI; renumber per C1 after #1208.
+2088	3b-catalog-format	3				no	Bumps VERSION to 10; xmp.rs conflict; renumber per C1.
+2092	C-camera-colour	14	2278			no	Camera colour/tone in pushed shadows (contains #2278); FredApps approved, but it changes the default raw look of every camera.
+2093	C-camera-colour	15				no	Bundles Nikon D780/D750/D90 camera profiles (28k-line JSON) + pooled tone curves; camera colour + asset provenance call.
+2102	3b-ui-components	27			1996	no	Approved; new direct dep dispatch2 (already transitive?) + Cargo.lock conflict.
+2109	3b-ui-components	23				no	CI red cause unverified; small.
+2110	E	1				no	Hebrew glyphs require Noto Sans Hebrew in craft-fonts; blocked on storytold/craft-fonts#12 repin, CI red until then.
+2111	3b-catalog-format	4			1932	no	Bumps VERSION to 10; edit.rs conflict; renumber per C1.
+2143	C-dependencies	5				no	MIDI controller map: new deps midir (+coremidi/windows; alsa-sys in lockfile), toml in engine; Linux excluded since its backend is C.
+2153	3b-library	10	2179		2124	no	Keeper over #2179 (aiongg ruling); mech-conflict; needs reviewer.
+2155	E	1			2119	no	Un-draft; main erf.rs:99 already errors on strip outside file: confirm what remains.
+2160	C-camera-colour	16				no	Bundles 7 fitted camera profiles (63k lines JSON) from unspecified 396-file sets; camera-colour look + data provenance call; two JSONs unused.
+2161	E	1			2120	no	Un-draft; coordinate with #2526 (same xmp.rs functions).
+2162	3b-ui-components	5				yes	After #2164; CI red + test-file conflicts; #2384 (draft) covers the light-theme part.
+2164	3b-ui-components	4				no	After #2076; CI red; approved; new thumb.rs 906 lines.
+2168	E	1				no	Un-draft; small tested fix for #2165/#2532 (LrC import blocker).
+2170	3b-gpu	3			2137	no	Adds deny lints to engine/meta/xtask: rebase + clippy last in round.
+2174	E	1				no	Split per issue; 7025d7dd2 (#2504) is now #2550; 9dae15ebc (#2312) applies cleanly; e554bd29a (#2173) needs a D850 corpus check vs #671.
+2176	3b-library	11			2084	no	CHANGES_REQUESTED with follow-ups; 5 conflicts; closes #2084.
+2179	D	1		2153	2124	no	Linear, but the last-marker heuristic is wrong when a record holds a nested object that starts with {"seq": (smart-album rule value). #2153 handles that.
+2188	C-camera-colour	17				no	Smooths fitted camera tone curves, Sony DRO between knots: camera-colour render change; 2 code conflicts.
+2194	C-product	10				no	Reorganises every menu (View 62→36 rows): a menu-structure call for the maintainer; CI red; conflicts with #2080 in menubar.rs/menus.rs.
+2195	3a-t1	4				no	Verified clean/green/approved; menu labels change (user-visible); #2016/#2194 rebase after.
+2202	C-new-subsystem	22				no	Negative Craft: a 5.3k-line film-negative conversion subsystem with changes requested; claims catalog v11.
+2203	3b-catalog-format	1			2154	no	Clean/green/approved but bumps VERSION to 10: renumber at merge per ruling C1.
+2204	3b-ui-components	25				no	Approved, clean; CI red; 44 files; after #2205.
+2205	3a-t1	22				no	Approved, green, clean, 12 tests; largest 3a item (47 files): last in track.
+2206	E	1				no	First-run onboarding tour + What's New after update; FredApps CHANGES_REQUESTED outstanding; new UX surface.
+2207	3b-library	13			2159	no	Approved, well tested; presets.rs conflict (also #2032).
+2209	E	1			2104	no	Changes requested, red CI, mech-conflict. Built-in export presets need author fixes.
+2210	E	1				no	FredApps CHANGES_REQUESTED, CI red; also adds png as a regular ui-egui dependency just for an example.
+2211	D	1		2477-2480,2155		no	Draft 86-file bundle (header reads, hashing, ERF fix) with 18 code conflicts; its parts are proposed separately in #2477-#2480 and #2155.
+2214	D	1		2430		no	Draft duplicate of #2430 picker fix (23 lines).
+2218	E	1				no	Draft: macOS native menu sends ⌘A/C/X/Z to a focused text field; main has TEXT_EDIT yielding (native_menu.rs:33,154) but not this hand-off.
+2222	C-camera-colour	18				no	Per-photo 'calibrated camera colour' choice changes raw starting colour; CHANGES_REQUESTED, CI red, 5 code conflicts. Camera-colour product decision first.
+2227	D	1		2430		no	Same accept-list fix as #2430 without test (5 lines).
+2237	3b-ui-components	9				no	Conflicts lib.rs/render.rs; green.
+2243	E	1	2485		2241	yes	Keeper for #2241 (vs #2485) but still draft and no CI: author un-drafts; then fast lane.
+2246	3b-lrcat	5				no	Clean; CI red cause unknown.
+2250	E	1			2248	no	Draft: Before view waits for its own render; 52 lines, no review yet.
+2255	3a-t3	6				no	people.toml append; trivial conflict.
+2259	3b-bg-tasks	7				no	Stacked on #1642 (C: activity bell): waits for that ruling.
+2265	D	1		1464		no	Dependabot group (egui/candle/jixel) red; quick-xml fix via #1464.
+2278	D	1		2092		no	Proven: pr/2278 is an ancestor of pr/2092.
+2279	3a-t1	14			2275	no	Base of #2281/#2283; CI pending at dump time: confirm green before merging.
+2281	3b-culling	1			2277	no	Stacked on #2279 (verified ancestor); CI pending.
+2283	3b-catalog-format	5			2276	no	Stacked on #2279; CI red; bumps VERSION to 10; renumber per C1.
+2287	3b-ui-components	10				no	Conflicts detail.rs; green; serde fallback tested.
+2289	C-product	13			2232	no	A rating/flag/label on a collapsed stack now writes to hidden members. Product call (Lightroom parity, MCP semantics with no ids). Red CI.
+2290	D	1		1208	1233,2284	no	Keeper #1208 (aiongg round-1 ruling); heif.rs 405 vs 1143 lines, fewer tests.
+2302	3a-t3	1				no	Deep-reviewed (review-2302.md): xtask tests/clippy pass on head; 3 doc conflicts with known resolution.
+2303	3b-tooling	1				no	Stacked on #2302 (verified); tooling only.
+2305	E	1				no	Draft stacked on #2416 (contains fed964d56); face grouping for bulk review, 3012 lines; waits on #2416's CHANGES_REQUESTED.
+2310	3b-walk-sidecars	5				no	3 conflicts; after #1575.
+2313	C-process-v3	12				no	Process V3 Highlights/Shadows/Whites/Blacks: tone-slider response change; overlaps #1383 on Blacks; V3 collision.
+2315	3b-web	1	2508		2270	yes	Own PR (francoisgn). Strict cmd params and #2508 open-size cap added in 2115f8eeb; re-review.
+2316	3b-raw	3				no	Green; people.toml conflict; large decoder with provenance notes.
+2322	3b-library	17			2308	no	CI red; clean geometry change, 4 tests.
+2325	3b-ui-components	11				no	Second-window zoom; FredApps comments open; wide UI surface.
+2326	C-new-subsystem	24				no	Embedded-metadata search cache with ComfyUI prompt parsing: new subsystem (2.5k lines, 44 files), 8 code conflicts; scope call.
+2327	3a-t1	11			2312	no	Approved, green; test module; alternative 9dae15ebc in #2174 not needed once merged.
+2328	3b-library	14				no	Mech-conflict; agent-visible behaviour change (ack in whats-new).
+2329	3b-bg-tasks	6				no	3 conflicts; TaskGuard present.
+2330	D	1		1060		no	Particle grain replacing grid noise for every process (V1 is not kept frozen); #1060 is the process-gated keeper; changes requested.
+2332	C-process-v3	13				no	Process V3 sharpening at the original's pixels and a raw base look: a render-fidelity change competing for V3.
+2338	C-product	11				no	Opt-in Lightroom Classic keymap profile (940 lines, 23 files): product call on shipping a second keymap; code-conflict shortcuts.rs.
+2340	C-process-v3	14				no	Process V3 sharp resample and fit view; one of 12 open PRs that each define Process::V3.
+2344	C-product	12				no	Opt-in Lightroom-style crop canvas + straighten band beside Photoshop default: a UI-paradigm choice; CI red; 4 code conflicts.
+2345	3a-t1	12				no	Green, clean code; no reviewer yet; keymap-clash test extended.
+2350	C-catalog-format	3				no	Stacked on #2281; new Bursts panel + VERSION 10 (Analysis.rank); CI red; needs ruling C1 and product ack.
+2351	3b-gpu	2				no	4 conflicts with main #1858 poll guard; after #1848.
+2355	C-licence	2				no	X-Trans AI denoise through a LinearRgb contract and a darktable-hosted RawNIND model (GPL-3.0 weights); a licence/policy call, 1.3k lines.
+2358	E	1				no	Draft: People masks with SAM 3; also bumps catalog format to v10, which ~10 other PRs claim too.
+2367	3b-library	15				no	CI red; arguably a fix to Fill; keeper over #2390 part.
+2368	3b-library	16				no	CI red; spot.add thins agent points silently: document.
+2370	3b-ui-components	8	1936			no	Keeper over #1936 (same author, newer, approved); CI red; rebase.
+2373	3b-ui-components	6				no	After #2077 (spinner); approved; CI red; macOS NSWorkspace follow.
+2377	E	1			2528	no	Rebase Windows/macOS matrix on #2302.
+2378	E	1				no	Changes requested and unanswered; adds 1.1k lines of readers that nothing uses yet; code conflict in import.rs.
+2381	C-dependencies	10				no	Real bug (#2284: main files.rs:1130 dates files in UTC) but adds jiff; main standardised on chrono (bfb23db2c): redo with chrono clock feature.
+2384	E	1			2382	no	Small, correct fix (theme tokens for the grid selection border on light themes) but still draft; overlaps #2162/#2164 on the same ring.
+2388	E	1				no	Draft stacked on #2283 (other group, red CI). Waits for its base.
+2390	C-process-v3	15				no	Makes Remove content-aware: existing Remove spots that were saved with a source offset will render differently, a look change that needs process gating.
+2394	E	1				no	Un-draft; 3-line fix + test.
+2395	3b-i18n	3				no	CI red; after #2072 (fonts.rs).
+2412	3b-lrcat	7				no	Maintainer PR; nix.yml step must move to shared workflow.
+2413	3b-tooling	2				no	Trivial conflict with main curl line.
+2414	3b-perf	6				no	1 conflict keyword_list.rs; good tests.
+2415	3b-perf	3				no	Mech-conflict; needs reviewer.
+2416	E	1			1873	no	Answer CHANGES_REQUESTED; VERSION bump per ruling C1; keeper over #1896.
+2418	3b-perf	2				no	CI red; conflicts with other PERF PRs.
+2419	3b-walk-sidecars	6				no	CI red; conflicts walk.rs with #2459: rebase after it.
+2421	E	1				no	Opt-in DX12 DirectComposition VRR workaround; FredApps CHANGES_REQUESTED still standing (later commits may answer it, needs re-review).
+2422	3a-t2	2				no	Approved, green, clean; 2 test files; #2423/#2043 conflict in rules.rs and go after.
+2423	3b-perf	1				no	CI red; conflicts rules.rs with #2422: rebase after it.
+2424	3a-t2	3				no	Approved, green, pure module with 13 tests; no UI wiring yet.
+2427	D	1		2429		no	Proven: zh-hans.json hunk identical to #2429 (which adds zh-hant).
+2429	E	1				no	Superset of #2427 (identical zh-hans plus zh-hant). FredApps requested changes and they are unanswered.
+2430	3a-t1	17	2214,2227		2212	no	Keeper over #2214/#2227 (test, closes #2212).
+2434	E	1				no	Draft that holds only a plan doc (docs/preview-sizing.md). No implementation, tests or UI yet.
+2435	D	1		1728		no	Draft Korean, 3rd of three (#1728, #1673); also bumps craft-fonts ref in workflows and makes Nanum Gothic required in build.rs. Keeper likely #1728 (green, non-draft,
+2439	C-unsafe	7				no	New crates/wincolor with Win32 unsafe and windows-sys dep, CLAUDE.md unsafe rule amended: needs maintainer approval for a second unsafe crate.
+2441	D	1		main 2fc56a537	2437	no	Proven: 2fc56a537 on main; remaining diff vs merge-base is 9 lines (doc comment + 5-line test).
+2445	C-camera-colour	19				no	Measured X-T4 film-simulation looks + new pipeline looks/hue_sat stages: camera colour look change, 1.9k lines, 2 code conflicts.
+2453	3a-t1	19				no	Keeper over #2174 title part; tiny, tested.
+2455	3a-t1	18				no	Fixes unwrap_or(json!({})) in run_inbox; #2315 must reuse automation::params.
+2459	3b-walk-sidecars	1	2480			no	Approved, green, clean; keeper walker design over #2480 files_in_parallel.
+2463	3b-perf	11				no	6 code conflicts; bounded.
+2464	3b-perf	7				no	1 test-file conflict; unused helpers.
+2465	E	1			2462	no	Un-draft; confirm complete_len units.
+2468	3a-t1	16				no	Approved, green; docs-only conflicts.
+2477	E	1				no	CHANGES_REQUESTED + red CI; Add to My Photos hashes synchronously in the app until the 2/4 worker lands.
+2478	3b-walk-sidecars	2				no	NOT stacked on #2477 (verified); conflicts import.rs/grid.rs; before #2480.
+2479	E	1				no	Stacked on #2477 (CHANGES_REQUESTED, CI red); this PR also has CHANGES_REQUESTED. Blocked on author.
+2480	3b-walk-sidecars	3				no	Stacked on #2478; drop files_in_parallel in favour of #2459 walker.
+2482	3a-t2	6				no	Approved, green, clean; 6 tests; #2483 (3/3) waits.
+2483	E	1				no	Stacked on open #2482 (3/3 of #1887); FredApps CHANGES_REQUESTED and CI red. Wait for #2482, then rebase.
+2485	D	1		2243	2241	no	Duplicate of #2243. deny_unknown_fields on the persisted Filter struct is riskier than #2243's checks at the command boundary.
+2487	E	1				no	Light L16 LRI decoder, good black-box provenance notes; CI red and conflict in crates/raw/tests/corpus.rs need author fix.
+2490	C-new-subsystem	23				no	New crate lightcraft-film (2.4k lines, no caller yet) ported from author's MIT Film Lab; overlaps #2202 Negative Craft — pick one design.
+2491	E	1				no	Draft; vendors a whole winit fork (239 files, 65k lines, unsafe impls) for KDE global menu. Not mergeable as is.
+2492	3b-export-merge	6				no	CI red; after #2029.
+2494	3a-t3	2				no	Python tools + sonar config only; green.
+2495	C-provenance	3			2484	no	ARW v1 decoder whose Huffman table and scan order mirror dcraw's sony_arw_load_raw, incl. 17/16-bit codes impossible in 12-bit data.
+2501	3a-t1	10			2460	no	Approved, green, clean, 2 tests; closes #2460.
+2502	3a-t2	5				no	Verified MONTHS.get bounds check and bad-month tests; docs-only conflict.
+2503	3a-t2	4				no	Approved, green, clean; 9 threaded tests.
+2506	3a-t1	20			2505	no	Verified shift_iso strict tail parser + tests; #2530 (same function) rebases after it.
+2507	3a-t3	5				no	Docs only, approved.
+2508	D	1		2315		no	Duplicate of #2315 host bridge; its open-size cap is ported to #2315 (2115f8eeb).
+2512	E	1			2442	no	Draft CRW (CIFF) decoder, 2 code conflicts; provenance note claims black-box + T.81, third Huffman table missing; maintainer must accept CRW provenance.
+2513	3a-t1	13			2500	no	Keeper over the #2500 part of #2174; 4 tests; docs-only conflicts.
+2514	C-camera-colour	20				no	Kelvin scale for six X-Trans III bodies from RAF 0xf00c neutral pair; tested, approved; changes WB scale (camera colour), merge before #2527.
+2520	D	1		main i18n.rs:136		no	Proven: main i18n.rs:136 Vi + vi.json; ATTRIBUTION row would duplicate.
+2521	E	1				no	Feature on main (0e08318ba); its extra tests fail: fix tests or close.
+2522	3b-settings	2				no	Rebase on #1287/#2524; CI red cause unknown; roving focus widget.
+2523	3b-settings	3				no	Rebase on #1287; CI red cause unknown; 534-line tests.
+2524	3b-settings	1				no	Approved, green; NOT stacked on #1287 (verified): rebase onto it (settings.rs/lib.rs).
+2525	3b-settings	4				no	Rebase last; shares Tokens::legible with #1374 and ">" vs #2016 "→": pick one glyph.
+2526	E	1				no	XMP: foreign namespaces reusing known prefixes become opaque Q{hex}local keys (no rating/lc:settings spoofing), tested; CI red on head.
+2527	C-camera-colour	21				no	Stacked on #2514; moves Canon/Panasonic/Pentax/Sony bodies (ILCE-7M2, ILCE-1, R7) from relative to Kelvin WB scale: camera-colour call.
+2529	3b-heif-meta	3				no	CI red cause unknown; re-run after #1464 (quick-xml 0.41).
+2530	3b-heif-meta	4				no	Approved, green; same shift_iso lines as #2506: trivial rebase after it.
+2531	3b-ui-components	22				no	CI red; touches finish_with signature; after #1956.
+2533	3b-ai	2				no	After #1958; 3 conflicts.
+2534	C-new-subsystem	25				no	2/5 of SAM 3 GPU stack: ViT backbone in WGSL; new GPU inference subsystem plus gpu→segment dependency.
+2535	C-new-subsystem	26				no	3/5 of SAM 3 GPU stack (necks on wgpu); stacked, decide with the stack.
+2536	C-new-subsystem	27				no	4/5 of SAM 3 GPU stack (DETR encoder on wgpu); merge only as part of the stack decision.
+2537	C-new-subsystem	28				no	5/5 of SAM 3 GPU stack (7.3k lines): new WGSL inference subsystem; gpu crate gains lightcraft-segment + candle-core deps.
+2540	3b-raw	4				no	1-line fix + test; CI red: re-run.
+2541	3a-t3	3				no	Test-only; may cure control-server timeout flakes on other PRs: merge first in track.
+2542	3a-t2	7				no	Verified: exact 1/N only when reciprocal is integral; round-trip test; complements #1692.

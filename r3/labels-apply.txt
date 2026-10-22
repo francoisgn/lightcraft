@@ -1,0 +1,251 @@
+154: enhancement,priority: low
+186: enhancement,needs info,priority: low
+190: bug,priority: medium
+197: enhancement,priority: medium
+205: bug,priority: medium
+209: bug,priority: medium
+211: bug,priority: medium
+220: enhancement,roadmap,priority: low
+230: bug,priority: medium
+231: enhancement,duplicate,priority: low
+233: enhancement,roadmap,priority: medium
+250: bug,priority: high
+251: enhancement,priority: low
+253: bug,needs info,priority: medium
+260: enhancement,priority: medium
+271: enhancement,needs info,priority: low
+274: bug,needs info,priority: medium
+275: enhancement,priority: medium
+276: question,priority: low
+294: enhancement,roadmap,priority: low
+299: bug,priority: high
+301: question,wontfix,priority: low
+303: enhancement,roadmap,priority: low
+315: bug,needs info,priority: high
+318: bug,needs info,priority: medium
+329: enhancement,roadmap,priority: low
+332: enhancement,priority: medium
+343: enhancement,priority: medium
+348: enhancement,priority: low
+366: bug,priority: medium
+377: enhancement,priority: medium
+378: bug,priority: medium
+380: enhancement,roadmap,priority: medium
+400: bug,needs info,priority: low
+410: enhancement,priority: medium
+430: bug,priority: medium
+436: enhancement,roadmap,priority: medium
+438: enhancement,good first issue,priority: low
+446: enhancement,priority: low
+450: enhancement,roadmap,priority: medium
+454: bug,priority: medium
+455: bug,priority: medium
+461: bug,priority: low
+463: enhancement,priority: low
+487: enhancement,priority: low
+490: enhancement,priority: low
+497: enhancement,priority: low
+503: bug,priority: medium
+506: bug,priority: medium
+515: bug,priority: high
+521: enhancement,priority: medium
+523: bug,priority: medium
+535: bug,priority: medium
+548: bug,priority: medium
+565: enhancement,priority: low
+576: bug,needs info,priority: high
+579: support,priority: low
+638: bug,needs info,priority: medium
+639: bug,priority: medium
+648: documentation,good first issue,priority: low
+649: enhancement,good first issue,priority: low
+650: enhancement,priority: low
+653: bug,priority: medium
+654: bug,priority: medium
+682: bug,priority: high
+707: enhancement,roadmap,priority: low
+709: enhancement,priority: low
+730: enhancement,priority: medium
+740: bug,priority: low
+741: bug,priority: medium
+757: bug,priority: medium
+763: bug,priority: medium
+783: bug,priority: low
+795: enhancement,priority: low
+801: enhancement,priority: medium
+802: bug,needs info,priority: medium
+811: bug,needs info,priority: medium
+815: bug,priority: medium
+832: bug,priority: high
+835: enhancement,priority: low
+836: enhancement,priority: low
+839: enhancement,priority: low
+840: bug,priority: medium
+859: enhancement,roadmap,priority: low
+860: bug,priority: high
+861: enhancement,priority: low
+862: bug,priority: low
+864: enhancement,priority: low
+865: bug,priority: medium
+866: enhancement,priority: low
+867: bug,priority: low
+868: enhancement,roadmap,priority: medium
+878: bug,duplicate,priority: high
+880: enhancement,roadmap,priority: low
+881: enhancement,priority: low
+893: bug,priority: low
+895: enhancement,priority: low
+903: enhancement,priority: low
+905: bug,good first issue,priority: low
+911: bug,priority: medium
+917: bug,needs info,priority: medium
+918: enhancement,priority: low
+932: enhancement,priority: low
+934: enhancement,priority: medium
+958: enhancement,priority: low
+964: bug,priority: low
+972: enhancement,priority: low
+973: bug,needs info,priority: low
+987: enhancement,priority: low
+988: enhancement,priority: low
+989: bug,priority: high
+1001: bug,priority: medium
+1005: enhancement,priority: low
+1006: bug,priority: medium
+1015: enhancement,priority: low
+1016: enhancement,priority: low
+1021: bug,priority: medium
+1022: bug,needs info,priority: low
+1030: bug,priority: medium
+1035: bug,priority: low
+1042: enhancement,priority: low
+1046: enhancement,priority: low
+1049: enhancement,priority: low
+1050: enhancement,roadmap,priority: medium
+1057: enhancement,priority: medium
+1058: enhancement,priority: low
+1082: support,priority: medium
+1109: enhancement,good first issue,priority: low
+1110: bug,priority: medium
+1112: enhancement,priority: medium
+1116: enhancement,roadmap,priority: medium
+1118: enhancement,duplicate,priority: low
+1129: bug,priority: medium
+1130: enhancement,priority: low
+1131: enhancement,priority: low
+1133: enhancement,priority: low
+1134: bug,needs info,priority: high
+1141: bug,priority: medium
+1145: enhancement,priority: medium
+1157: bug,needs info,priority: medium
+1167: bug,priority: medium
+1172: enhancement,priority: low
+1183: documentation,priority: low
+1184: documentation,priority: low
+1201: enhancement,priority: low
+1203: enhancement,priority: low
+1207: enhancement,roadmap,priority: medium
+1217: enhancement,priority: low
+1224: enhancement,priority: medium
+1228: enhancement,priority: medium
+1230: enhancement,priority: low
+1233: bug,priority: high
+1234: bug,priority: high
+1237: bug,priority: medium
+1251: bug,priority: medium
+1269: question,multiple issues,priority: low
+1273: bug,priority: medium
+1274: bug,priority: medium
+1277: bug,priority: medium
+1278: bug,priority: low
+1279: bug,needs info,priority: medium
+1281: question,roadmap,priority: medium
+1290: enhancement,priority: low
+1300: bug,priority: medium
+1310: enhancement,priority: low
+1315: enhancement,priority: low
+1318: bug,priority: low
+1323: bug,needs info,priority: high
+1328: bug,priority: medium
+1334: enhancement,needs info,priority: low
+1337: bug,needs info,priority: critical
+1339: question,priority: medium
+1343: bug,priority: medium
+1345: bug,priority: medium
+1346: enhancement,roadmap,priority: medium
+1347: enhancement,wontfix,priority: low
+1352: enhancement,priority: low
+1354: bug,priority: medium
+1364: bug,needs info,priority: medium
+1369: bug,priority: medium
+1371: bug,duplicate,priority: medium
+1372: bug,priority: medium
+1380: bug,needs info,priority: medium
+1393: enhancement,priority: low
+1395: enhancement,roadmap,priority: low
+1396: bug,priority: low
+1401: bug,priority: high
+1403: question,priority: low
+1405: bug,priority: high
+1407: bug,priority: medium
+1437: enhancement,priority: low
+1449: enhancement,priority: low
+1476: bug,needs info,priority: high
+1478: bug,needs info,priority: high
+1488: enhancement,priority: low
+1492: enhancement,priority: medium
+1498: bug,priority: medium
+1520: bug,priority: medium
+1523: bug,priority: medium
+1553: enhancement,priority: low
+1564: bug,needs info,priority: medium
+1584: bug,needs info,priority: high
+1588: bug,priority: high
+1591: enhancement,priority: low
+1593: enhancement,roadmap,priority: medium
+1594: enhancement,priority: low
+1596: enhancement,priority: low
+1615: enhancement,priority: low
+1618: bug,priority: medium
+1619: bug,priority: medium
+1621: enhancement,priority: low
+1622: enhancement,priority: low
+1629: enhancement,priority: low
+1630: enhancement,priority: medium
+1632: bug,priority: medium
+1633: enhancement,priority: medium
+1636: enhancement,priority: low
+1643: bug,priority: low
+1650: enhancement,priority: low
+1657: bug,priority: medium
+1664: bug,priority: medium
+1675: enhancement,priority: low
+1676: bug,priority: medium
+1677: enhancement,priority: low
+1679: enhancement,priority: medium
+1681: bug,needs info,priority: medium
+1689: enhancement,roadmap,priority: medium
+1701: enhancement,duplicate,priority: low
+1702: enhancement,duplicate,priority: medium
+1706: enhancement,priority: medium
+1707: enhancement,priority: low
+1717: support,needs info,priority: low
+1723: enhancement,priority: low
+1724: support,needs info,priority: low
+1725: enhancement,roadmap,priority: low
+1726: bug,needs info,priority: high
+1727: enhancement,priority: low
+1737: enhancement,priority: low
+1756: documentation,priority: low
+1760: enhancement,priority: medium
+1764: bug,priority: high
+1765: bug,priority: medium
+1766: enhancement,priority: low
+1768: bug,good first issue,priority: low
+1774: bug,priority: low
+1800: bug,priority: medium
+1801: bug,multiple issues,priority: medium
+1806: bug,priority: high
+1833: bug,priority: low
+1839: bug,priority: medium
+2288: enhancement,priority: low
