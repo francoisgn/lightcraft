@@ -6,7 +6,8 @@
 //! an empty LightCraft library inside Lightroom's folder; [`Session::open_library`] refuses with
 //! [`EngineError::LightroomCatalog`] instead, and the app offers File ▸ Import Lightroom Catalog….
 //!
-//! What counts (only names are looked at; no catalog is opened or read):
+//! What counts (only names are looked at, and a backup zip's list of files; no catalog is opened
+//! or read):
 //! - a LightCraft library (`catalog.snap` or `catalog.log` in the folder) is never a Lightroom
 //!   catalog, whatever else the folder holds: it opens as before;
 //! - a path named `*.lrcat` or one of its companions (`*.lrcat-wal`, `*.lrcat-shm`,
@@ -14,8 +15,11 @@
 //! - a folder named `*.lrdata` or `*.lrcat-data` (Lightroom's previews and data);
 //! - a folder holding a `*.lrcat` at its top level (the catalog folder itself), or `Backups/`
 //!   next to one;
-//! - Lightroom's backups (issue #2592), even with the catalog itself gone: a `Backups/` folder
-//!   (its newest backup) or one of its dated folders, `Backups/YYYY-MM-DD HHMM/`, holding a `*.zip`.
+//! - Lightroom's backups (issue #2592), even with the catalog itself gone: a `Backups/` folder or
+//!   one of its dated folders, `Backups/YYYY-MM-DD HHMM/`, holding a `*.zip` with one `.lrcat` in
+//!   it ([`crate::lightroom_backup::holds_catalog`]). A dated folder names
+//!   its zip; `Backups/` names one only when it holds a single backup, since the person has to choose
+//!   among several (the import then asks for the file).
 //!
 //! The folder scan is bounded ([`SCAN_LIMIT`] entries, top level only) and every I/O error just
 //! means "not found": this never fails and never panics.
@@ -135,11 +139,13 @@ pub fn lightroom_catalog_at(path: &Path) -> Option<LightroomPlace> {
         {
             return Some(LightroomPlace { catalog: Some(catalog) });
         }
-        // `Backups/` alone (the catalog deleted): its newest backup
+        // `Backups/` alone (the catalog deleted): its backup when there is only one; with several,
+        // which one to import is the person's choice
         if lower == "backups"
-            && let Some(zip) = newest_backup(path)
+            && let Some(backups) = backup_zips(path)
         {
-            return Some(LightroomPlace { catalog: Some(zip) });
+            let catalog = if backups.len() == 1 { backups.into_iter().next() } else { None };
+            return Some(LightroomPlace { catalog });
         }
         // a dated backup folder, `Backups/2023-11-07 0900/`
         if parent.and_then(lower_name).as_deref() == Some("backups")
@@ -151,18 +157,23 @@ pub fn lightroom_catalog_at(path: &Path) -> Option<LightroomPlace> {
     None
 }
 
-/// The first `*.zip` file (by name) at the top level of `dir`, looking at no more than
-/// [`SCAN_LIMIT`] entries.
+/// The first `*.zip` file (by name) at the top level of `dir` that holds a Lightroom catalog,
+/// looking at no more than [`SCAN_LIMIT`] entries.
 fn find_backup_zip(dir: &Path) -> Option<PathBuf> {
     let entries = std::fs::read_dir(dir).ok()?;
-    entries.take(SCAN_LIMIT).flatten().map(|e| e.path()).filter(|p| crate::lightroom_backup::is_backup(p) && p.is_file()).min()
+    entries
+        .take(SCAN_LIMIT)
+        .flatten()
+        .map(|e| e.path())
+        .filter(|p| crate::lightroom_backup::is_backup(p) && p.is_file())
+        .filter(|p| crate::lightroom_backup::holds_catalog(p))
+        .min()
 }
 
-/// The backup zip of the newest dated folder in `backups` (Lightroom names them
-/// `YYYY-MM-DD HHMM`, so the newest sorts last).
-fn newest_backup(backups: &Path) -> Option<PathBuf> {
+/// The backup zips in the dated folders of `backups`, one per folder; `None` when there are none.
+fn backup_zips(backups: &Path) -> Option<Vec<PathBuf>> {
     let entries = std::fs::read_dir(backups).ok()?;
-    let mut dated: Vec<PathBuf> = entries.take(SCAN_LIMIT).flatten().map(|e| e.path()).filter(|p| p.is_dir()).collect();
-    dated.sort();
-    dated.iter().rev().find_map(|d| find_backup_zip(d))
+    let zips: Vec<PathBuf> =
+        entries.take(SCAN_LIMIT).flatten().map(|e| e.path()).filter(|p| p.is_dir()).filter_map(|d| find_backup_zip(&d)).collect();
+    (!zips.is_empty()).then_some(zips)
 }

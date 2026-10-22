@@ -192,6 +192,12 @@ fn catalog_entry(entries: &[Entry]) -> Result<&Entry, String> {
     }
 }
 
+/// Whether the zip at `path` holds exactly one Lightroom catalog, by its central directory only
+/// (nothing is unpacked). Any read error means no.
+pub fn holds_catalog(path: &Path) -> bool {
+    File::open(path).ok().and_then(|mut f| entries(&mut f).ok()).is_some_and(|all| catalog_entry(&all).is_ok())
+}
+
 /// Remove `lc-lrbackup-*` folders in `root` left by an earlier run that ended without cleaning up.
 fn sweep(root: &Path) {
     let Ok(dir) = std::fs::read_dir(root) else { return };
@@ -223,9 +229,10 @@ pub fn extract(zip: &Path, root: &Path, cancel: &AtomicBool) -> Result<Extracted
         use std::os::unix::fs::PermissionsExt;
         let _ = std::fs::set_permissions(&dir, std::fs::Permissions::from_mode(0o700));
     }
-    let name = Path::new(&entry.name).file_name().map_or_else(|| "catalog.lrcat".into(), |n| n.to_string_lossy().into_owned());
-    // the guard exists before the first byte is written: every early return below cleans up
-    let out = Extracted { catalog: dir.join(&name), dir, entry: entry.name.clone() };
+    // a fixed name, not the zip's: an entry named `NUL.lrcat` or `a:b.lrcat` would be a device or an
+    // alternate data stream on Windows. The guard exists before the first byte is written: every
+    // early return below cleans up.
+    let out = Extracted { catalog: dir.join("catalog.lrcat"), dir, entry: entry.name.clone() };
     let local = read_at(&mut f, entry.local, 30)?;
     if !local.starts_with(b"PK\x03\x04") {
         return Err("damaged zip (local header)".into());
@@ -406,6 +413,7 @@ pub(crate) mod tests {
             let got = extract(&path, &root, &AtomicBool::new(false)).unwrap();
             assert_eq!(std::fs::read(&got.catalog).unwrap(), catalog, "deflate {deflate} zip64 {zip64}");
             assert_eq!(got.entry, "Cat.lrcat");
+            assert_eq!(got.catalog.file_name().unwrap(), "catalog.lrcat", "a fixed name, never the zip's");
             drop(got);
             assert!(leftovers(&root).is_empty(), "the private folder is removed");
             std::fs::remove_dir_all(&dir).unwrap();
@@ -479,5 +487,22 @@ pub(crate) mod tests {
         assert_eq!(original_catalog(zip, "Cat-v13.lrcat"), Path::new("/p/Lightroom/Cat-v13.lrcat"));
         assert_eq!(original_catalog(Path::new("/elsewhere/Cat.zip"), "sub/Cat.lrcat"), Path::new("/elsewhere/Cat.lrcat"));
         assert!(is_backup(Path::new("a/B.ZIP")) && !is_backup(Path::new("a/B.lrcat")));
+    }
+
+    #[test]
+    fn only_a_zip_with_one_catalog_holds_one() {
+        let dir = temp("holds");
+        let cases: [(&str, Vec<u8>, bool); 4] = [
+            ("one.zip", zip(&[("Cat.lrcat", b"x"), ("Cat.lrcat-data/CURRENT", b"y")], true, false), true),
+            ("none.zip", zip(&[("photo.jpg", b"x")], false, false), false),
+            ("two.zip", zip(&[("A.lrcat", b"a"), ("B.lrcat", b"b")], false, false), false),
+            ("junk.zip", b"PK".to_vec(), false),
+        ];
+        for (name, bytes, want) in cases {
+            std::fs::write(dir.join(name), bytes).unwrap();
+            assert_eq!(holds_catalog(&dir.join(name)), want, "{name}");
+        }
+        assert!(!holds_catalog(&dir.join("absent.zip")));
+        std::fs::remove_dir_all(&dir).unwrap();
     }
 }

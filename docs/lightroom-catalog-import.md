@@ -135,8 +135,9 @@ Lightroom Catalog… take the zip directly (issue #2592, `crates/engine/src/ligh
   16 GiB is refused with a message; a full disk is a write error, not a crash.
 - The import's `source` is the zip. Paths the catalog records relative to itself (`relativePathFromCatalog`) are
   taken from where the catalog was: two folders above a dated backup folder, else next to the zip.
-- Open Library given `Backups/` without its catalog (its newest backup) or a dated folder in it offers the import
-  of that zip instead of making a library there.
+- Open Library given `Backups/` without its catalog, or a dated folder in it, makes no library there and offers the
+  import: of the dated folder's zip, of the only backup in `Backups/`, or, when `Backups/` holds several, of the zip
+  the person picks (the file dialog asks).
 - Collections are matched across imports by the catalog's own id (`Adobe_storeProviderID` in
   `Adobe_variablesTable`), which every backup of the catalog keeps, so importing a backup of a catalog already
   imported adds no collection twice. Collections imported by earlier releases, keyed on the catalog's path, are
