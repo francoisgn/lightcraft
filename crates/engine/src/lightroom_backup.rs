@@ -62,6 +62,7 @@ pub struct Extracted {
 }
 
 impl Drop for Extracted {
+    /// Removes the private folder and the catalog in it; a failure is logged, not raised (drop can't fail).
     fn drop(&mut self) {
         if let Err(e) = std::fs::remove_dir_all(&self.dir)
             && e.kind() != std::io::ErrorKind::NotFound
@@ -82,16 +83,19 @@ struct Entry {
     local: u64,
 }
 
+/// The little-endian `u16` at `at` in `b`, or `None` past its end.
 fn u16_at(b: &[u8], at: usize) -> Option<u16> {
     let s = b.get(at..at.checked_add(2)?)?;
     Some(u16::from_le_bytes([s[0], s[1]]))
 }
 
+/// The little-endian `u32` at `at` in `b`, or `None` past its end.
 fn u32_at(b: &[u8], at: usize) -> Option<u32> {
     let s = b.get(at..at.checked_add(4)?)?;
     Some(u32::from_le_bytes([s[0], s[1], s[2], s[3]]))
 }
 
+/// The little-endian `u64` at `at` in `b`, or `None` past its end.
 fn u64_at(b: &[u8], at: usize) -> Option<u64> {
     let s = b.get(at..at.checked_add(8)?)?;
     let mut a = [0u8; 8];
@@ -99,6 +103,7 @@ fn u64_at(b: &[u8], at: usize) -> Option<u64> {
     Some(u64::from_le_bytes(a))
 }
 
+/// `len` bytes of `f` from offset `at`; a length that doesn't fit memory or a short read is an error.
 fn read_at(f: &mut File, at: u64, len: u64) -> Result<Vec<u8>, String> {
     let len = usize::try_from(len).map_err(|_| "zip record too large".to_string())?;
     f.seek(SeekFrom::Start(at)).map_err(|e| e.to_string())?;
@@ -202,10 +207,19 @@ pub fn holds_catalog(path: &Path) -> bool {
 fn sweep(root: &Path) {
     let Ok(dir) = std::fs::read_dir(root) else { return };
     for entry in dir.take(10_000).flatten() {
-        let stale =
-            entry.metadata().ok().and_then(|m| m.modified().ok()).and_then(|t| t.elapsed().ok()).is_some_and(|age| age.as_secs() > STALE_SECS);
-        if stale && entry.file_name().to_str().is_some_and(|n| n.starts_with(PREFIX)) {
-            let _ = std::fs::remove_dir_all(entry.path());
+        if !entry.file_name().to_str().is_some_and(|n| n.starts_with(PREFIX)) {
+            continue;
+        }
+        // only a real folder of ours: `DirEntry::metadata` doesn't follow a link (Unix), and a link named
+        // like one is skipped explicitly rather than relying on `remove_dir_all` removing just the link
+        let Ok(meta) = entry.metadata() else { continue };
+        let stale = meta.modified().ok().and_then(|t| t.elapsed().ok()).is_some_and(|age| age.as_secs() > STALE_SECS);
+        if meta.is_dir()
+            && !meta.file_type().is_symlink()
+            && stale
+            && let Err(e) = std::fs::remove_dir_all(entry.path())
+        {
+            log::warn!("Lightroom backup: could not remove the leftover {}: {e}", entry.path().display());
         }
     }
 }
@@ -223,12 +237,11 @@ pub fn extract(zip: &Path, root: &Path, cancel: &AtomicBool) -> Result<Extracted
     sweep(root);
     let stamp = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_nanos());
     let dir = root.join(format!("{PREFIX}{}-{stamp}", std::process::id()));
-    std::fs::create_dir(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+    let mut builder = std::fs::DirBuilder::new();
+    // owner-only from the start on Unix (a catalog holds the person's paths and metadata)
     #[cfg(unix)]
-    {
-        use std::os::unix::fs::PermissionsExt;
-        let _ = std::fs::set_permissions(&dir, std::fs::Permissions::from_mode(0o700));
-    }
+    std::os::unix::fs::DirBuilderExt::mode(&mut builder, 0o700);
+    builder.create(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
     // a fixed name, not the zip's: an entry named `NUL.lrcat` or `a:b.lrcat` would be a device or an
     // alternate data stream on Windows. The guard exists before the first byte is written: every
     // early return below cleans up.
@@ -242,7 +255,8 @@ pub fn extract(zip: &Path, root: &Path, cancel: &AtomicBool) -> Result<Extracted
     let data_at = entry.local.checked_add(30 + skip).ok_or_else(bad)?;
     f.seek(SeekFrom::Start(data_at)).map_err(|e| e.to_string())?;
     let mut input = f.take(entry.compressed);
-    let file = File::create(&out.catalog).map_err(|e| format!("{}: {e}", out.catalog.display()))?;
+    // created new: a file or a link already in its place is an error, never written through
+    let file = std::fs::OpenOptions::new().write(true).create_new(true).open(&out.catalog).map_err(|e| format!("{}: {e}", out.catalog.display()))?;
     let mut writer = std::io::BufWriter::with_capacity(CHUNK, file);
     let mut crc = crc32fast::Hasher::new();
     let mut written = 0u64;
@@ -389,6 +403,7 @@ pub(crate) mod tests {
         out
     }
 
+    /// A fresh, empty folder for one test.
     fn temp(tag: &str) -> PathBuf {
         let dir = std::env::temp_dir().join(format!("lc-lrbackup-test-{tag}-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
@@ -396,11 +411,13 @@ pub(crate) mod tests {
         dir
     }
 
+    /// The private extraction folders still in `root`.
     fn leftovers(root: &Path) -> Vec<String> {
         let Ok(dir) = std::fs::read_dir(root) else { return Vec::new() };
         dir.flatten().map(|e| e.file_name().to_string_lossy().into_owned()).filter(|n| n.starts_with(PREFIX)).collect()
     }
 
+    /// Stored, deflated and ZIP64 backups give back the catalog byte for byte, under the fixed name, and leave nothing.
     #[test]
     fn stored_deflated_and_zip64_backups_unpack_their_catalog_and_clean_up() {
         let catalog: Vec<u8> = (0..300_000u32).flat_map(|i| (i % 251).to_le_bytes()).collect();
@@ -420,6 +437,7 @@ pub(crate) mod tests {
         }
     }
 
+    /// Not a zip, empty, no or two catalogs, cut short, bad CRC, or cancelled: an error, and no folder left.
     #[test]
     fn damaged_or_wrong_zips_are_errors_and_leave_nothing_behind() {
         let dir = temp("bad");
@@ -453,6 +471,7 @@ pub(crate) mod tests {
         std::fs::remove_dir_all(&dir).unwrap();
     }
 
+    /// A ZIP64 size of 1 TB is refused before anything is written.
     #[test]
     fn a_zip_that_lies_about_the_catalog_size_is_refused() {
         let dir = temp("size");
@@ -466,6 +485,7 @@ pub(crate) mod tests {
         std::fs::remove_dir_all(&dir).unwrap();
     }
 
+    /// A day-old leftover folder is removed; a recent one (another import still reading) is kept.
     #[cfg(unix)]
     #[test]
     fn stale_leftovers_are_swept_and_recent_ones_kept() {
@@ -481,6 +501,7 @@ pub(crate) mod tests {
         std::fs::remove_dir_all(&root).unwrap();
     }
 
+    /// Paths relative to the catalog resolve from where Lightroom kept it, not from the zip.
     #[test]
     fn the_original_catalog_is_two_folders_above_a_dated_backup() {
         let zip = Path::new("/p/Lightroom/Backups/2023-11-07 0900/Cat-v13.zip");
@@ -489,6 +510,7 @@ pub(crate) mod tests {
         assert!(is_backup(Path::new("a/B.ZIP")) && !is_backup(Path::new("a/B.lrcat")));
     }
 
+    /// Folder detection counts a zip only when its directory lists exactly one catalog.
     #[test]
     fn only_a_zip_with_one_catalog_holds_one() {
         let dir = temp("holds");

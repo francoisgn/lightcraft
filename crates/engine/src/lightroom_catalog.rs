@@ -1599,10 +1599,12 @@ mod tests {
         (live, zip)
     }
 
+    /// How many albums the library has.
     fn albums(s: &crate::Session) -> usize {
         s.catalog.albums().count()
     }
 
+    /// The zip imports the same photos and collections as its catalog, with the zip as source, no temp files and the zip unchanged.
     #[test]
     fn a_backup_zip_imports_like_its_catalog_and_leaves_no_temporary_files() {
         let root = std::env::temp_dir().join(format!("lightcraft-lrbackup-zip-{}", std::process::id()));
@@ -1631,6 +1633,7 @@ mod tests {
         let _ = std::fs::remove_dir_all(&root);
     }
 
+    /// Issue #2606: the backup of an imported catalog matches its collections by the catalog id.
     #[test]
     fn importing_a_backup_after_its_catalog_adds_no_album_twice() {
         let root = std::env::temp_dir().join(format!("lightcraft-lrbackup-twice-{}", std::process::id()));
@@ -1646,6 +1649,7 @@ mod tests {
         let _ = std::fs::remove_dir_all(&root);
     }
 
+    /// Libraries imported by earlier releases (path keys) still find their albums.
     #[test]
     fn collections_imported_before_the_catalog_id_was_read_are_still_matched_by_path() {
         let dir = std::env::temp_dir().join(format!("lightcraft-lrcat-pathkey-{}", std::process::id()));
