@@ -38,16 +38,18 @@ pub fn is_backup(path: &Path) -> bool {
     path.extension().is_some_and(|e| e.eq_ignore_ascii_case("zip"))
 }
 
-/// Where the catalog in a backup lived, for resolving the paths it records relative to itself:
-/// `<catalog folder>/Backups/<date>/<name>.zip` → `<catalog folder>/<name>.lrcat`; a zip
-/// elsewhere → the `.lrcat` next to it.
-pub fn original_catalog(zip: &Path, entry: &str) -> PathBuf {
+/// Where the catalog in a backup lived, for resolving the paths it records relative to itself, and
+/// whether that is known: `<catalog folder>/Backups/<date>/<name>.zip` (Lightroom's default
+/// layout) → `<catalog folder>/<name>.lrcat`, known; a zip anywhere else (a backup folder of the
+/// person's choosing, a zip moved away) → the `.lrcat` next to it, a guess that is only used to
+/// resolve paths, never to recognise the catalog.
+pub fn original_catalog(zip: &Path, entry: &str) -> (PathBuf, bool) {
     let name = Path::new(entry).file_name().map_or_else(|| PathBuf::from("catalog.lrcat"), PathBuf::from);
     let dated = zip.parent();
     let backups = dated.and_then(Path::parent);
     match backups {
-        Some(b) if b.file_name().is_some_and(|n| n.eq_ignore_ascii_case("backups")) => b.parent().unwrap_or(b).join(name),
-        _ => dated.map_or_else(|| name.clone(), |d| d.join(&name)),
+        Some(b) if b.file_name().is_some_and(|n| n.eq_ignore_ascii_case("backups")) => (b.parent().unwrap_or(b).join(name), true),
+        _ => (dated.map_or_else(|| name.clone(), |d| d.join(&name)), false),
     }
 }
 
@@ -505,8 +507,11 @@ pub(crate) mod tests {
     #[test]
     fn the_original_catalog_is_two_folders_above_a_dated_backup() {
         let zip = Path::new("/p/Lightroom/Backups/2023-11-07 0900/Cat-v13.zip");
-        assert_eq!(original_catalog(zip, "Cat-v13.lrcat"), Path::new("/p/Lightroom/Cat-v13.lrcat"));
-        assert_eq!(original_catalog(Path::new("/elsewhere/Cat.zip"), "sub/Cat.lrcat"), Path::new("/elsewhere/Cat.lrcat"));
+        assert_eq!(original_catalog(zip, "Cat-v13.lrcat"), (PathBuf::from("/p/Lightroom/Cat-v13.lrcat"), true));
+        // a backup folder of the person's choosing: a guess for paths, not an identity
+        assert_eq!(original_catalog(Path::new("/elsewhere/Cat.zip"), "sub/Cat.lrcat"), (PathBuf::from("/elsewhere/Cat.lrcat"), false));
+        let chosen = Path::new("/Volumes/Ext/LR Backups/2026-10-22 1200/Cat.zip");
+        assert!(!original_catalog(chosen, "Cat.lrcat").1);
         assert!(is_backup(Path::new("a/B.ZIP")) && !is_backup(Path::new("a/B.lrcat")));
     }
 
