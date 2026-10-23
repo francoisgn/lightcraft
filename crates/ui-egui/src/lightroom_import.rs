@@ -724,6 +724,7 @@ mod tests {
         let report = inspect_report(CatalogImport {
             source: "synthetic.lrcat".into(),
             catalog_id: None,
+            catalog_path: None,
             photos: Vec::new(),
             collections: Vec::new(),
             members: Vec::new(),

@@ -357,6 +357,7 @@ mod tests {
         CatalogImport {
             source: "fixture.lrcat".into(),
             catalog_id: None,
+            catalog_path: None,
             photos: Vec::new(),
             collections: Vec::new(),
             members: Vec::new(),
@@ -392,6 +393,7 @@ mod tests {
             data: CatalogImport {
                 source: "fixture.lrcat".into(),
                 catalog_id: None,
+                catalog_path: None,
                 photos: vec![lightroom_catalog::CatalogPhoto {
                     source_id: 1,
                     uuid: "fixture-photo".into(),

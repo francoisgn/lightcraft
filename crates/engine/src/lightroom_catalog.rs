@@ -190,6 +190,11 @@ pub struct CatalogImport {
     /// of the catalog (issue #2592). `None` when the catalog has none.
     #[serde(default)]
     pub catalog_id: Option<String>,
+    /// Where the catalog was when it isn't `source`: for a backup zip, the `.lrcat` it was backed up
+    /// from. Collections imported by earlier releases are keyed on that path, so a backup still finds
+    /// them. `None` when the catalog was read where it is.
+    #[serde(default)]
+    pub catalog_path: Option<String>,
     pub photos: Vec<CatalogPhoto>,
     pub collections: Vec<Row>,
     pub members: Vec<Row>,
@@ -595,6 +600,7 @@ fn read_file(path: &Path, document: &Path, source: &Path, cancel: &AtomicBool, d
     let mut out = CatalogImport {
         source: source.to_string_lossy().into(),
         catalog_id: reader.catalog_id(),
+        catalog_path: (document != source).then(|| document.to_string_lossy().into()),
         photos: Vec::new(),
         collections: optional_table("AgLibraryCollection", &mut warnings)?,
         members: optional_table("AgLibraryCollectionImage", &mut warnings)?,
@@ -1075,11 +1081,14 @@ pub(crate) fn apply_prepared(s: &mut crate::Session, mut data: CatalogImport, co
             continue;
         }
         // keyed on the catalog's own id (the same in its backups); imports made before that was
-        // read are keyed on the catalog's path, and are still found by it
+        // read are keyed on the catalog's path, and are still found by it, also from a backup (the
+        // path of the catalog it was backed up from)
         let path_key = format!("{}:{}", key(&data.source), number(collection, "id_local"));
+        let original_key = data.catalog_path.as_ref().map(|p| format!("{}:{}", key(p), number(collection, "id_local")));
         let collection_key = data.catalog_id.as_ref().map_or_else(|| path_key.clone(), |c| format!("lrcat:{c}:{}", number(collection, "id_local")));
-        let id = [&collection_key, &path_key]
+        let id = [Some(&collection_key), Some(&path_key), original_key.as_ref()]
             .into_iter()
+            .flatten()
             .filter_map(|k| index.collections.get(k).copied())
             .map(lightcraft_catalog::AlbumId)
             .find(|id| s.catalog.album(*id).is_some())
@@ -1176,6 +1185,7 @@ mod tests {
         CatalogImport {
             source: "test.lrcat".into(),
             catalog_id: None,
+            catalog_path: None,
             photos: vec![copy, photo],
             collections: vec![
                 row(json!({"id_local":9,"name":"Travel","creationId":"collection.group"})),
@@ -1646,6 +1656,27 @@ mod tests {
         let again = import(&mut s, &zip, false).unwrap();
         assert_eq!(again["imported"], 0, "the photos are matched by their Lightroom id");
         assert_eq!(albums(&s), 1, "the collections are matched by the catalog's id, not its path");
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    /// A backup of a catalog that an earlier release imported (collections keyed on the live
+    /// `.lrcat` path, no catalog id) finds those albums through the path it was backed up from.
+    #[test]
+    fn a_backup_finds_collections_an_earlier_release_keyed_on_the_live_catalog_path() {
+        let root = std::env::temp_dir().join(format!("lightcraft-lrbackup-legacy-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        let (live, zip) = backup_fixture(&root, "968AF29B-EEE2-481E-8AF9-55DD82965F49");
+        let mut s = crate::Session::new();
+        s.open_library(root.join("Library"), false).unwrap();
+        // an earlier release: the live catalog imported without its id (path keys only)
+        let mut old = read(&live).unwrap();
+        old.catalog_id = None;
+        apply(&mut s, old, false).unwrap();
+        assert_eq!(albums(&s), 1);
+        let backup = read(&zip).unwrap();
+        assert_eq!(backup.catalog_path.as_deref(), Some(live.to_string_lossy().as_ref()), "where the zip's catalog was");
+        apply(&mut s, backup, false).unwrap();
+        assert_eq!(albums(&s), 1, "the backup finds the albums keyed on the live catalog's path");
         let _ = std::fs::remove_dir_all(&root);
     }
 
