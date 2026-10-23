@@ -141,8 +141,12 @@ Lightroom Catalog… take the zip directly (issue #2592, `crates/engine/src/ligh
 - Collections are matched across imports by the catalog's own id (`Adobe_storeProviderID` in
   `Adobe_variablesTable`), which every backup of the catalog keeps, so importing a backup of a catalog already
   imported adds no collection twice. Collections imported by earlier releases, keyed on the catalog's path, are
-  still found by that key. Photos are matched as before, by Lightroom's image id and path: a backup whose photos
-  were at another place (an older backup from before a move) adds them as other records.
+  still found by that key. Each key records the id it was written for, so two catalogs with different ids that sat
+  at the same path keep their own albums. A catalog without `Adobe_storeProviderID` (every Lightroom Classic
+  catalog checked, from Lightroom 7 to Classic 13, has one; only a damaged or foreign file lacks it) is known by its
+  path alone: it matches whatever was imported from that path, the one identity it has. Photos are matched as
+  before, by Lightroom's image id and path: a backup whose photos were at another place (an older backup from
+  before a move) adds them as other records.
 
 Checked on 2026-10-22 on a real catalog (2,740 photos, 96 collections) and its four backups from Lightroom 7
 (2018) to Classic 13 (2023), 88 MB zips holding 138 MB catalogs: each zip imports the same photos and collections
