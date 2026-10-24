@@ -9,7 +9,10 @@ owner writes in (FR/EN).
 `.fork/TODO.md` (the ledger) current as it says.**
 
 ## Fork-only files (never in an upstream PR)
-- `CLAUDE.local.md` (this file), `.github/workflows/fork-build.yml`, `.fork/` (incl. `ORCHESTRA.md`, `TODO.md`).
+- `CLAUDE.local.md` (this file), `.github/workflows/fork-build.yml`, `.fork/` (incl. `ORCHESTRA.md`, `TODO.md`),
+  `.claude/settings.json` (owner's allow rules for `mcp__github__issue_write` and
+  `mcp__claude-code-remote__add_repo`: fork sessions get them pre-approved and pass them to the child sessions they
+  start; force-added, `.claude/` is gitignored upstream).
 - They live in **one commit on top of upstream `main`** in the fork's `main`. Nothing else may differ from upstream
   on the fork's `main`.
 

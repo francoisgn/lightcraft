@@ -111,6 +111,7 @@ pushing a review fix), self-review against this list, and add a line here whenev
 | 15 | A scripted doc or code edit is checked by a text diff (every removed / added line read) before the commit, not only by the script's own check | #2689 (header dedup glued two entries, caught by the adversarial review) |
 | 16 | A test drives the real entry point (the frame loop, the command, `ui.dropFiles`), not only the helper it calls; code reached every frame is a no-op on empty input | #2701 (hold_dropped toasted every frame; the test called it directly) |
 | 17 | A load or stress test cleans up after itself and the session checks it did (`pgrep`, `uptime`) before the next build; a test filter is checked to have run the test ("1 passed", not "0 passed") | Mac 2026-10-23: 320 orphaned `yes` from a load loop held the load at 380 for 1h30 and made a full CI fail; the loop's filter had run 0 tests |
+| 18 | Watching a PR means every review and comment, people's first (maintainers, reviewers), not only the bots; a CHANGES_REQUESTED from a person is answered before anything else, and the PR is not called green while one stands | #2689 (FredApps' review sat 10 h unseen while the watcher looked at CodeRabbit only; aiongg fixed it himself) |
 
 **Handling a review round (rule of 2026-10-23: each round trip costs a CI run, a re-review and tokens).**
 1. Read CodeRabbit's whole review first, including the "Outside diff range" and nitpick sections and its "Prompt for AI agents" block, and every open thread on the PR.
