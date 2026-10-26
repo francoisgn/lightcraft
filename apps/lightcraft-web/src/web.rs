@@ -578,7 +578,7 @@ impl WebApp {
                     }
                 }
                 Incoming::Cmd { id, params } => {
-                    let r = match crate::host::cmd_params(&params) {
+                    let r = match crate::automation::params(&params) {
                         Err(e) => Err(format!("{id}: {e}")),
                         Ok(_) if id == "web.stats" => Ok(self.web_stats()),
                         Ok(params) => self.app.run(&id, params),

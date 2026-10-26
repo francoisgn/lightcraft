@@ -17,7 +17,7 @@
 //!   means "closing the page right now would lose something": a write still queued or running,
 //!   or changes that storage refused (quota).
 //! - `lightcraft:cmd` (from the parent): `{ id, params }`, params a JSON string (`{}` when
-//!   missing, empty or `null`; anything but a JSON object is refused unrun, see [`cmd_params`]).
+//!   missing, empty or `null`; anything but a JSON object is refused unrun, see [`crate::automation::params`]).
 //!   Runs the command by id, like `lightcraft.command(..)` from the page itself, and answers with
 //!   `lightcraft:response` `{ ok, value }` (the JSON result, or the error text).
 //!   Responses carry no request id (none of the sibling bridges' do): they come back in the order
@@ -59,22 +59,6 @@ pub struct Raw {
 pub fn open_size_error(len: u64) -> Option<String> {
     let max = crate::backup::MAX_BYTES;
     (len > max).then(|| format!("the file is too large to open ({} MB; the limit is {} MB)", len >> 20, max >> 20))
-}
-
-/// The parameters of a `lightcraft:cmd`: a JSON object, or `{}` when the text is empty or `null`.
-/// Anything else is an error, never `{}`: a command run without its params acts on the selection
-/// or with defaults, so a typo such as `{ids: [3]}` must not delete or reset the selected photos.
-pub fn cmd_params(text: &str) -> Result<serde_json::Value, String> {
-    let text = text.trim();
-    if text.is_empty() {
-        return Ok(serde_json::Value::Object(Default::default()));
-    }
-    match serde_json::from_str::<serde_json::Value>(text) {
-        Ok(serde_json::Value::Null) => Ok(serde_json::Value::Object(Default::default())),
-        Ok(v @ serde_json::Value::Object(_)) => Ok(v),
-        Ok(_) => Err("params must be a JSON object, e.g. {\"ids\": [3]}; nothing was run".into()),
-        Err(e) => Err(format!("params are not valid JSON ({e}); nothing was run")),
-    }
 }
 
 /// The name a photo sent without one is stored under (its extension picks the decoder).
@@ -362,22 +346,6 @@ mod tests {
         assert!(open_size_error(max + 1).is_some_and(|e| e.contains("too large")));
         let m = Raw { name: Some("big.tif".into()), oversize: Some(max + 1), ..raw("lightcraft:open") };
         assert!(matches!(Incoming::parse(m), Some(Incoming::Refused(e)) if e.contains("too large")));
-    }
-
-    #[test]
-    fn cmd_params_blank_or_null_are_an_empty_object() {
-        for text in ["", "   ", "\n", "null", " null "] {
-            assert_eq!(cmd_params(text), Ok(serde_json::json!({})), "{text:?}");
-        }
-        assert_eq!(cmd_params(r#"{"ids": [3], "rating": 5}"#), Ok(serde_json::json!({"ids": [3], "rating": 5})));
-    }
-
-    /// Before, any of these ran the command with `{}`: `photo.delete` then removed the selection.
-    #[test]
-    fn cmd_params_refuse_invalid_json_and_non_objects() {
-        for text in ["{ids: [3]}", "{\"ids\": [3]", "ids=3", "[3]", "3", "\"{}\"", "true"] {
-            assert!(cmd_params(text).is_err_and(|e| e.contains("nothing was run")), "{text:?} must not run the command");
-        }
     }
 
     #[test]
