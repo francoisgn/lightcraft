@@ -306,5 +306,8 @@
   "Inside: {names}": "Inuti: {names}",
   "Where should the Lightroom catalog “{catalog}” go?": "Vart ska Lightroom-katalogen ”{catalog}” importeras?",
   "Merge into the open library “{library}” ({count} photo{})": "Slå samman med det öppna biblioteket ”{library}” ({count} foto{:.0})",
-  "Added {n} sample photos, with albums under “{folder}” and keywords to try": "Lade till {n} exempelfoton, med album under ”{folder}” och nyckelord att prova"
+  "Added {n} sample photos, with albums under “{folder}” and keywords to try": "Lade till {n} exempelfoton, med album under ”{folder}” och nyckelord att prova",
+  "Add {n} photo{} to “{}”": "Lägg till foton i ”{1}”: {n}{0:.0}",
+  "Add “{keyword}” to {n} photo{}": "Lägg till ”{keyword}” på foton: {n}{:.0}",
+  "{n} already there": "redan i albumet: {n}"
 }

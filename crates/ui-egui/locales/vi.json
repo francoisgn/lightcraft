@@ -2248,5 +2248,14 @@
   "On, every change to a photo's edits or metadata is written to an XMP file beside the photo, for other apps to read. Off, that happens when you choose Save Metadata to File in the Photo menu.": "Khi bật, mọi thay đổi đối với chỉnh sửa hoặc siêu dữ liệu của ảnh được ghi vào tệp XMP bên cạnh ảnh để các ứng dụng khác đọc. Khi tắt, việc đó xảy ra khi bạn chọn Lưu siêu dữ liệu vào tệp trong menu Ảnh.",
   "Photos whose originals are not connected are shown and edited from their smart previews; new ones can only be made from originals that are connected.": "Ảnh có bản gốc chưa được kết nối được hiển thị và chỉnh sửa từ bản xem trước thông minh của chúng; bản mới chỉ có thể tạo từ bản gốc đã kết nối.",
   "The model's file is deleted. To use it again you download or add it again.": "Tệp của mô hình sẽ bị xóa. Để dùng lại, bạn tải xuống hoặc thêm lại.",
-  "Thumbnails and previews are made again as you browse, which takes a while in a large library. Your photos and edits are not touched.": "Hình thu nhỏ và bản xem trước được tạo lại khi bạn duyệt, việc này mất một lúc với thư viện lớn. Ảnh và chỉnh sửa của bạn không bị ảnh hưởng."
+  "Thumbnails and previews are made again as you browse, which takes a while in a large library. Your photos and edits are not touched.": "Hình thu nhỏ và bản xem trước được tạo lại khi bạn duyệt, việc này mất một lúc với thư viện lớn. Ảnh và chỉnh sửa của bạn không bị ảnh hưởng.",
+  "A smart album's rules choose its photos: change them with Edit Smart Album…": "Quy tắc của album thông minh chọn ảnh của nó: thay đổi bằng Chỉnh sửa album thông minh…",
+  "Add keywords in the Keyword List": "Thêm từ khóa trong Danh sách từ khóa",
+  "Already on these photos": "Đã có trên các ảnh này",
+  "An album folder holds albums, not photos: drop on an album inside it": "Thư mục album chứa album, không chứa ảnh: hãy thả vào một album bên trong nó",
+  "Can't add to a smart album": "Không thể thêm vào album thông minh",
+  "Can't add to an album folder": "Không thể thêm vào thư mục album",
+  "Can't go inside itself": "Không thể đặt vào chính nó",
+  "Demo photos have no file on disk, so they can't be moved": "Ảnh demo không có tệp trên đĩa nên không thể di chuyển",
+  "Give photos a keyword in the Keyword List (Window → Keywords, K): drop them on it there": "Gán từ khóa cho ảnh trong Danh sách từ khóa (Cửa sổ → Từ khóa, K): hãy thả ảnh lên từ khóa ở đó"
 }

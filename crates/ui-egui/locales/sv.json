@@ -2443,5 +2443,14 @@
   "On, every change to a photo's edits or metadata is written to an XMP file beside the photo, for other apps to read. Off, that happens when you choose Save Metadata to File in the Photo menu.": "När det är på skrivs varje ändring av ett fotos redigeringar eller metadata till en XMP-fil bredvid fotot, så att andra program kan läsa den. När det är av sker det när du väljer Spara metadata till fil i menyn Foto.",
   "Photos whose originals are not connected are shown and edited from their smart previews; new ones can only be made from originals that are connected.": "Foton vars original inte är anslutna visas och redigeras från sina smarta förhandsgranskningar; nya kan bara skapas från original som är anslutna.",
   "The model's file is deleted. To use it again you download or add it again.": "Modellens fil raderas. För att använda den igen hämtar eller lägger du till den på nytt.",
-  "Thumbnails and previews are made again as you browse, which takes a while in a large library. Your photos and edits are not touched.": "Miniatyrer och förhandsgranskningar skapas på nytt medan du bläddrar, vilket tar en stund i ett stort bibliotek. Dina foton och redigeringar berörs inte."
+  "Thumbnails and previews are made again as you browse, which takes a while in a large library. Your photos and edits are not touched.": "Miniatyrer och förhandsgranskningar skapas på nytt medan du bläddrar, vilket tar en stund i ett stort bibliotek. Dina foton och redigeringar berörs inte.",
+  "A smart album's rules choose its photos: change them with Edit Smart Album…": "Ett smart albums regler väljer dess foton: ändra dem med Redigera smart album…",
+  "Add keywords in the Keyword List": "Lägg till nyckelord i nyckelordslistan",
+  "Already on these photos": "Finns redan på de här fotona",
+  "An album folder holds albums, not photos: drop on an album inside it": "En albummapp innehåller album, inte foton: släpp på ett album i den",
+  "Can't add to a smart album": "Kan inte läggas till i ett smart album",
+  "Can't add to an album folder": "Kan inte läggas till i en albummapp",
+  "Can't go inside itself": "Kan inte läggas inuti sig själv",
+  "Demo photos have no file on disk, so they can't be moved": "Demofoton har ingen fil på disken och kan därför inte flyttas",
+  "Give photos a keyword in the Keyword List (Window → Keywords, K): drop them on it there": "Ge foton ett nyckelord i nyckelordslistan (Fönster → Nyckelord, K): släpp dem på det där"
 }
